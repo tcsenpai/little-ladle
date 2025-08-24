@@ -1,0 +1,816 @@
+{
+  "metadata": {
+    "createdAt": "2025-08-24T12:26:58.923Z",
+    "totalFoods": 19,
+    "apiRequestsUsed": 40,
+    "version": "sophie-foods-v1"
+  },
+  "foods": [
+    {
+      "fdcId": 171706,
+      "name": "Avocados, raw, California",
+      "shortName": "avocado raw",
+      "category": "other",
+      "nutrients": {
+        "protein": {
+          "name": "Protein",
+          "amount": 1.96,
+          "unit": "g"
+        },
+        "fat": {
+          "name": "Total Fat",
+          "amount": 15.41,
+          "unit": "g"
+        },
+        "carbs": {
+          "name": "Carbohydrates",
+          "amount": 8.64,
+          "unit": "g"
+        },
+        "calcium": {
+          "name": "Calcium",
+          "amount": 13,
+          "unit": "mg"
+        },
+        "iron": {
+          "name": "Iron",
+          "amount": 0.61,
+          "unit": "mg"
+        },
+        "vitaminC": {
+          "name": "Vitamin C",
+          "amount": 8.8,
+          "unit": "mg"
+        },
+        "vitaminA": {
+          "name": "Vitamin A",
+          "amount": 7,
+          "unit": "µg"
+        }
+      },
+      "ageGroup": "8+ months"
+    },
+    {
+      "fdcId": 173944,
+      "name": "Bananas, raw",
+      "shortName": "banana raw",
+      "category": "other",
+      "nutrients": {
+        "protein": {
+          "name": "Protein",
+          "amount": 1.09,
+          "unit": "g"
+        },
+        "fat": {
+          "name": "Total Fat",
+          "amount": 0.33,
+          "unit": "g"
+        },
+        "carbs": {
+          "name": "Carbohydrates",
+          "amount": 22.84,
+          "unit": "g"
+        },
+        "calcium": {
+          "name": "Calcium",
+          "amount": 5,
+          "unit": "mg"
+        },
+        "iron": {
+          "name": "Iron",
+          "amount": 0.26,
+          "unit": "mg"
+        },
+        "vitaminC": {
+          "name": "Vitamin C",
+          "amount": 8.7,
+          "unit": "mg"
+        },
+        "vitaminA": {
+          "name": "Vitamin A",
+          "amount": 3,
+          "unit": "µg"
+        }
+      },
+      "ageGroup": "8+ months"
+    },
+    {
+      "fdcId": 170133,
+      "name": "Sweet potato leaves, cooked, steamed, with salt",
+      "shortName": "sweet potato cooked",
+      "category": "other",
+      "nutrients": {
+        "protein": {
+          "name": "Protein",
+          "amount": 2.18,
+          "unit": "g"
+        },
+        "fat": {
+          "name": "Total Fat",
+          "amount": 0.34,
+          "unit": "g"
+        },
+        "carbs": {
+          "name": "Carbohydrates",
+          "amount": 7.38,
+          "unit": "g"
+        },
+        "calcium": {
+          "name": "Calcium",
+          "amount": 33,
+          "unit": "mg"
+        },
+        "iron": {
+          "name": "Iron",
+          "amount": 0.63,
+          "unit": "mg"
+        },
+        "vitaminC": {
+          "name": "Vitamin C",
+          "amount": 1.5,
+          "unit": "mg"
+        },
+        "vitaminA": {
+          "name": "Vitamin A",
+          "amount": 147,
+          "unit": "µg"
+        }
+      },
+      "ageGroup": "8+ months"
+    },
+    {
+      "fdcId": 168171,
+      "name": "Rose-apples, raw",
+      "shortName": "apple raw",
+      "category": "other",
+      "nutrients": {
+        "protein": {
+          "name": "Protein",
+          "amount": 0.6,
+          "unit": "g"
+        },
+        "fat": {
+          "name": "Total Fat",
+          "amount": 0.3,
+          "unit": "g"
+        },
+        "carbs": {
+          "name": "Carbohydrates",
+          "amount": 5.7,
+          "unit": "g"
+        },
+        "calcium": {
+          "name": "Calcium",
+          "amount": 29,
+          "unit": "mg"
+        },
+        "iron": {
+          "name": "Iron",
+          "amount": 0.07,
+          "unit": "mg"
+        },
+        "vitaminC": {
+          "name": "Vitamin C",
+          "amount": 22.3,
+          "unit": "mg"
+        },
+        "vitaminA": {
+          "name": "Vitamin A",
+          "amount": 17,
+          "unit": "µg"
+        }
+      },
+      "ageGroup": "8+ months"
+    },
+    {
+      "fdcId": 747447,
+      "name": "Broccoli, raw",
+      "shortName": "broccoli raw",
+      "category": "vegetable",
+      "nutrients": {
+        "protein": {
+          "name": "Protein",
+          "amount": 2.57,
+          "unit": "g"
+        },
+        "fat": {
+          "name": "Total Fat",
+          "amount": 0.34,
+          "unit": "g"
+        },
+        "carbs": {
+          "name": "Carbohydrates",
+          "amount": 6.27,
+          "unit": "g"
+        },
+        "calcium": {
+          "name": "Calcium",
+          "amount": 46,
+          "unit": "mg"
+        },
+        "iron": {
+          "name": "Iron",
+          "amount": 0.69,
+          "unit": "mg"
+        },
+        "vitaminC": {
+          "name": "Vitamin C",
+          "amount": 91.3,
+          "unit": "mg"
+        },
+        "vitaminA": {
+          "name": "Vitamin A",
+          "amount": 8,
+          "unit": "µg"
+        }
+      },
+      "ageGroup": "8+ months"
+    },
+    {
+      "fdcId": 171514,
+      "name": "Chicken breast tenders, breaded, cooked, microwaved",
+      "shortName": "chicken breast cooked",
+      "category": "protein",
+      "nutrients": {
+        "protein": {
+          "name": "Protein",
+          "amount": 16.35,
+          "unit": "g"
+        },
+        "fat": {
+          "name": "Total Fat",
+          "amount": 12.89,
+          "unit": "g"
+        },
+        "carbs": {
+          "name": "Carbohydrates",
+          "amount": 17.56,
+          "unit": "g"
+        },
+        "calcium": {
+          "name": "Calcium",
+          "amount": 14,
+          "unit": "mg"
+        },
+        "iron": {
+          "name": "Iron",
+          "amount": 1,
+          "unit": "mg"
+        },
+        "vitaminC": {
+          "name": "Vitamin C",
+          "amount": 0,
+          "unit": "mg"
+        },
+        "vitaminA": {
+          "name": "Vitamin A",
+          "amount": 0,
+          "unit": "µg"
+        }
+      },
+      "ageGroup": "8+ months"
+    },
+    {
+      "fdcId": 173722,
+      "name": "Salmon nuggets, cooked as purchased, unheated",
+      "shortName": "salmon cooked",
+      "category": "protein",
+      "nutrients": {
+        "protein": {
+          "name": "Protein",
+          "amount": 11.97,
+          "unit": "g"
+        },
+        "fat": {
+          "name": "Total Fat",
+          "amount": 10.43,
+          "unit": "g"
+        },
+        "carbs": {
+          "name": "Carbohydrates",
+          "amount": 11.85,
+          "unit": "g"
+        },
+        "calcium": {
+          "name": "Calcium",
+          "amount": 9,
+          "unit": "mg"
+        },
+        "iron": {
+          "name": "Iron",
+          "amount": 1.46,
+          "unit": "mg"
+        },
+        "vitaminC": {
+          "name": "Vitamin C",
+          "amount": 0,
+          "unit": "mg"
+        }
+      },
+      "ageGroup": "8+ months"
+    },
+    {
+      "fdcId": 173423,
+      "name": "Egg, whole, cooked, fried",
+      "shortName": "egg whole cooked",
+      "category": "protein",
+      "nutrients": {
+        "protein": {
+          "name": "Protein",
+          "amount": 13.61,
+          "unit": "g"
+        },
+        "fat": {
+          "name": "Total Fat",
+          "amount": 14.84,
+          "unit": "g"
+        },
+        "carbs": {
+          "name": "Carbohydrates",
+          "amount": 0.83,
+          "unit": "g"
+        },
+        "calcium": {
+          "name": "Calcium",
+          "amount": 62,
+          "unit": "mg"
+        },
+        "iron": {
+          "name": "Iron",
+          "amount": 1.89,
+          "unit": "mg"
+        },
+        "vitaminC": {
+          "name": "Vitamin C",
+          "amount": 0,
+          "unit": "mg"
+        },
+        "vitaminA": {
+          "name": "Vitamin A",
+          "amount": 219,
+          "unit": "µg"
+        }
+      },
+      "ageGroup": "8+ months"
+    },
+    {
+      "fdcId": 175254,
+      "name": "Lentils, mature seeds, cooked, boiled, with salt",
+      "shortName": "lentils cooked",
+      "category": "other",
+      "nutrients": {
+        "protein": {
+          "name": "Protein",
+          "amount": 9.02,
+          "unit": "g"
+        },
+        "fat": {
+          "name": "Total Fat",
+          "amount": 0.38,
+          "unit": "g"
+        },
+        "carbs": {
+          "name": "Carbohydrates",
+          "amount": 19.54,
+          "unit": "g"
+        },
+        "calcium": {
+          "name": "Calcium",
+          "amount": 19,
+          "unit": "mg"
+        },
+        "iron": {
+          "name": "Iron",
+          "amount": 3.33,
+          "unit": "mg"
+        },
+        "vitaminC": {
+          "name": "Vitamin C",
+          "amount": 1.5,
+          "unit": "mg"
+        },
+        "vitaminA": {
+          "name": "Vitamin A",
+          "amount": 0,
+          "unit": "µg"
+        }
+      },
+      "ageGroup": "8+ months"
+    },
+    {
+      "fdcId": 2259793,
+      "name": "Yogurt, plain, whole milk",
+      "shortName": "yogurt plain whole milk",
+      "category": "dairy",
+      "nutrients": {
+        "protein": {
+          "name": "Protein",
+          "amount": 3.824172,
+          "unit": "g"
+        },
+        "fat": {
+          "name": "Total Fat",
+          "amount": 4.484,
+          "unit": "g"
+        },
+        "carbs": {
+          "name": "Carbohydrates",
+          "amount": 5.574928,
+          "unit": "g"
+        },
+        "calcium": {
+          "name": "Calcium",
+          "amount": 126.8,
+          "unit": "mg"
+        },
+        "iron": {
+          "name": "Iron",
+          "amount": 0,
+          "unit": "mg"
+        }
+      },
+      "ageGroup": "8+ months"
+    },
+    {
+      "fdcId": 168917,
+      "name": "Quinoa, cooked",
+      "shortName": "quinoa cooked",
+      "category": "grain",
+      "nutrients": {
+        "protein": {
+          "name": "Protein",
+          "amount": 4.4,
+          "unit": "g"
+        },
+        "fat": {
+          "name": "Total Fat",
+          "amount": 1.92,
+          "unit": "g"
+        },
+        "carbs": {
+          "name": "Carbohydrates",
+          "amount": 21.3,
+          "unit": "g"
+        },
+        "calcium": {
+          "name": "Calcium",
+          "amount": 17,
+          "unit": "mg"
+        },
+        "iron": {
+          "name": "Iron",
+          "amount": 1.49,
+          "unit": "mg"
+        },
+        "vitaminC": {
+          "name": "Vitamin C",
+          "amount": 0,
+          "unit": "mg"
+        },
+        "vitaminA": {
+          "name": "Vitamin A",
+          "amount": 0,
+          "unit": "µg"
+        }
+      },
+      "ageGroup": "8+ months"
+    },
+    {
+      "fdcId": 2346411,
+      "name": "Blueberries, raw",
+      "shortName": "blueberries raw",
+      "category": "other",
+      "nutrients": {
+        "protein": {
+          "name": "Protein",
+          "amount": 0.703125,
+          "unit": "g"
+        },
+        "fat": {
+          "name": "Total Fat",
+          "amount": 0.3063,
+          "unit": "g"
+        },
+        "carbs": {
+          "name": "Carbohydrates",
+          "amount": 14.571775,
+          "unit": "g"
+        },
+        "calcium": {
+          "name": "Calcium",
+          "amount": 11.69,
+          "unit": "mg"
+        },
+        "iron": {
+          "name": "Iron",
+          "amount": 0.3398,
+          "unit": "mg"
+        },
+        "vitaminC": {
+          "name": "Vitamin C",
+          "amount": 8.059,
+          "unit": "mg"
+        }
+      },
+      "ageGroup": "8+ months"
+    },
+    {
+      "fdcId": 169400,
+      "name": "Malabar spinach, cooked",
+      "shortName": "spinach cooked",
+      "category": "vegetable",
+      "nutrients": {
+        "protein": {
+          "name": "Protein",
+          "amount": 2.98,
+          "unit": "g"
+        },
+        "fat": {
+          "name": "Total Fat",
+          "amount": 0.78,
+          "unit": "g"
+        },
+        "carbs": {
+          "name": "Carbohydrates",
+          "amount": 2.71,
+          "unit": "g"
+        },
+        "calcium": {
+          "name": "Calcium",
+          "amount": 124,
+          "unit": "mg"
+        },
+        "iron": {
+          "name": "Iron",
+          "amount": 1.48,
+          "unit": "mg"
+        },
+        "vitaminC": {
+          "name": "Vitamin C",
+          "amount": 5.9,
+          "unit": "mg"
+        },
+        "vitaminA": {
+          "name": "Vitamin A",
+          "amount": 58,
+          "unit": "µg"
+        }
+      },
+      "ageGroup": "8+ months"
+    },
+    {
+      "fdcId": 173263,
+      "name": "Rice, brown, parboiled, cooked, UNCLE BENS",
+      "shortName": "brown rice cooked",
+      "category": "grain",
+      "nutrients": {
+        "protein": {
+          "name": "Protein",
+          "amount": 3.09,
+          "unit": "g"
+        },
+        "fat": {
+          "name": "Total Fat",
+          "amount": 0.85,
+          "unit": "g"
+        },
+        "carbs": {
+          "name": "Carbohydrates",
+          "amount": 31.33,
+          "unit": "g"
+        },
+        "calcium": {
+          "name": "Calcium",
+          "amount": 3,
+          "unit": "mg"
+        },
+        "iron": {
+          "name": "Iron",
+          "amount": 0.53,
+          "unit": "mg"
+        }
+      },
+      "ageGroup": "8+ months"
+    },
+    {
+      "fdcId": 172678,
+      "name": "Bread, oatmeal",
+      "shortName": "oatmeal cooked",
+      "category": "other",
+      "nutrients": {
+        "protein": {
+          "name": "Protein",
+          "amount": 8.4,
+          "unit": "g"
+        },
+        "fat": {
+          "name": "Total Fat",
+          "amount": 4.4,
+          "unit": "g"
+        },
+        "carbs": {
+          "name": "Carbohydrates",
+          "amount": 48.5,
+          "unit": "g"
+        },
+        "calcium": {
+          "name": "Calcium",
+          "amount": 66,
+          "unit": "mg"
+        },
+        "iron": {
+          "name": "Iron",
+          "amount": 2.7,
+          "unit": "mg"
+        },
+        "vitaminC": {
+          "name": "Vitamin C",
+          "amount": 0,
+          "unit": "mg"
+        },
+        "vitaminA": {
+          "name": "Vitamin A",
+          "amount": 5,
+          "unit": "µg"
+        }
+      },
+      "ageGroup": "8+ months"
+    },
+    {
+      "fdcId": 170102,
+      "name": "Peas, green, cooked, boiled, drained, with salt",
+      "shortName": "peas cooked",
+      "category": "other",
+      "nutrients": {
+        "protein": {
+          "name": "Protein",
+          "amount": 5.36,
+          "unit": "g"
+        },
+        "fat": {
+          "name": "Total Fat",
+          "amount": 0.22,
+          "unit": "g"
+        },
+        "carbs": {
+          "name": "Carbohydrates",
+          "amount": 15.63,
+          "unit": "g"
+        },
+        "calcium": {
+          "name": "Calcium",
+          "amount": 27,
+          "unit": "mg"
+        },
+        "iron": {
+          "name": "Iron",
+          "amount": 1.54,
+          "unit": "mg"
+        },
+        "vitaminC": {
+          "name": "Vitamin C",
+          "amount": 14.2,
+          "unit": "mg"
+        },
+        "vitaminA": {
+          "name": "Vitamin A",
+          "amount": 40,
+          "unit": "µg"
+        }
+      },
+      "ageGroup": "8+ months"
+    },
+    {
+      "fdcId": 167762,
+      "name": "Strawberries, raw",
+      "shortName": "strawberries raw",
+      "category": "other",
+      "nutrients": {
+        "protein": {
+          "name": "Protein",
+          "amount": 0.67,
+          "unit": "g"
+        },
+        "fat": {
+          "name": "Total Fat",
+          "amount": 0.3,
+          "unit": "g"
+        },
+        "carbs": {
+          "name": "Carbohydrates",
+          "amount": 7.68,
+          "unit": "g"
+        },
+        "calcium": {
+          "name": "Calcium",
+          "amount": 16,
+          "unit": "mg"
+        },
+        "iron": {
+          "name": "Iron",
+          "amount": 0.41,
+          "unit": "mg"
+        },
+        "vitaminC": {
+          "name": "Vitamin C",
+          "amount": 58.8,
+          "unit": "mg"
+        },
+        "vitaminA": {
+          "name": "Vitamin A",
+          "amount": 1,
+          "unit": "µg"
+        }
+      },
+      "ageGroup": "8+ months"
+    },
+    {
+      "fdcId": 171506,
+      "name": "Turkey, Ground, cooked",
+      "shortName": "ground turkey cooked",
+      "category": "protein",
+      "nutrients": {
+        "protein": {
+          "name": "Protein",
+          "amount": 27.37,
+          "unit": "g"
+        },
+        "fat": {
+          "name": "Total Fat",
+          "amount": 10.4,
+          "unit": "g"
+        },
+        "carbs": {
+          "name": "Carbohydrates",
+          "amount": 0,
+          "unit": "g"
+        },
+        "calcium": {
+          "name": "Calcium",
+          "amount": 28,
+          "unit": "mg"
+        },
+        "iron": {
+          "name": "Iron",
+          "amount": 1.52,
+          "unit": "mg"
+        },
+        "vitaminC": {
+          "name": "Vitamin C",
+          "amount": 0,
+          "unit": "mg"
+        },
+        "vitaminA": {
+          "name": "Vitamin A",
+          "amount": 24,
+          "unit": "µg"
+        }
+      },
+      "ageGroup": "8+ months"
+    },
+    {
+      "fdcId": 170130,
+      "name": "Squash, winter, butternut, cooked, baked, with salt",
+      "shortName": "butternut squash cooked",
+      "category": "vegetable",
+      "nutrients": {
+        "protein": {
+          "name": "Protein",
+          "amount": 0.9,
+          "unit": "g"
+        },
+        "fat": {
+          "name": "Total Fat",
+          "amount": 0.09,
+          "unit": "g"
+        },
+        "carbs": {
+          "name": "Carbohydrates",
+          "amount": 10.49,
+          "unit": "g"
+        },
+        "calcium": {
+          "name": "Calcium",
+          "amount": 41,
+          "unit": "mg"
+        },
+        "iron": {
+          "name": "Iron",
+          "amount": 0.6,
+          "unit": "mg"
+        },
+        "vitaminC": {
+          "name": "Vitamin C",
+          "amount": 15.1,
+          "unit": "mg"
+        },
+        "vitaminA": {
+          "name": "Vitamin A",
+          "amount": 558,
+          "unit": "µg"
+        }
+      },
+      "ageGroup": "8+ months"
+    }
+  ]
+}
