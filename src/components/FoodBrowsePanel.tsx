@@ -179,10 +179,10 @@ function FoodBrowseItem({ food, isSelected, onAddFood, onShowInfo, childProfile 
   return (
     <div 
       className={`
-        flex items-center gap-4 p-4 rounded-2xl border-2 transition-all duration-300 hover:shadow-xl transform hover:scale-[1.02]
+        flex items-center gap-3 p-4 rounded-xl transition-all duration-200
         ${isSelected 
-          ? 'ring-4 ring-emerald-300 border-emerald-300 bg-gradient-to-r from-emerald-50 to-sky-50 shadow-xl scale-[1.02]' 
-          : 'border-white/50 bg-white/80 hover:border-emerald-200 hover:bg-gradient-to-r hover:from-white hover:to-emerald-50/30'
+          ? 'bg-indigo-50 border-2 border-indigo-200 shadow-md' 
+          : 'bg-white border border-gray-200 hover:bg-gray-50 hover:border-gray-300 shadow-sm hover:shadow-md'
         }
       `}
     >
@@ -192,18 +192,18 @@ function FoodBrowseItem({ food, isSelected, onAddFood, onShowInfo, childProfile 
         className="flex-1 flex items-center gap-4 text-left hover:bg-white/50 rounded-xl p-3 transition-all duration-200"
       >
         <div 
-          className="w-12 h-12 rounded-2xl flex items-center justify-center text-xl font-bold text-white shadow-lg transform hover:scale-110 transition-transform duration-200"
+          className="w-10 h-10 rounded-xl flex items-center justify-center text-lg text-white shadow-sm"
           style={{ backgroundColor: categoryColor }}
         >
           {categoryIcon}
         </div>
         
         <div className="flex-1 min-w-0">
-          <div className="font-black text-gray-800 text-sm leading-tight">
-            {food.shortName || food.name.substring(0, 25)}
-            {food.name.length > 25 && '...'}
+          <div className="font-semibold text-gray-900 text-sm leading-tight">
+            {food.shortName || food.name.substring(0, 30)}
+            {food.name.length > 30 && '...'}
           </div>
-          <div className="text-xs text-gray-600 capitalize mt-1 font-medium">
+          <div className="text-xs text-gray-500 capitalize mt-1">
             {food.category}
           </div>
         </div>
@@ -211,7 +211,7 @@ function FoodBrowseItem({ food, isSelected, onAddFood, onShowInfo, childProfile 
         {/* Age Indicator with WHO compliance */}
         <div className="flex items-center gap-2">
           <div 
-            className="px-3 py-2 rounded-xl text-xs font-black text-white shadow-lg"
+            className="px-2 py-1 rounded-lg text-xs font-medium text-white"
             style={{ backgroundColor: ageInfo.color }}
           >
             {ageInfo.text}
@@ -227,18 +227,11 @@ function FoodBrowseItem({ food, isSelected, onAddFood, onShowInfo, childProfile 
         </div>
       </button>
 
-      {/* Add Power Button */}
+      {/* Simple Add Button */}
       <button
         onClick={() => onAddFood(food)}
-        className="
-          w-14 h-14 rounded-2xl bg-gradient-to-r from-emerald-500 to-sky-500 
-          hover:from-emerald-600 hover:to-sky-600 active:from-emerald-700 active:to-sky-700
-          text-white font-black text-2xl transition-all duration-300 transform
-          hover:scale-110 active:scale-95 shadow-xl hover:shadow-2xl
-          focus:outline-none focus:ring-4 focus:ring-emerald-300 focus:ring-offset-2
-          hover:rotate-12 active:rotate-0
-        "
-        title={`Add ${food.shortName || food.name} to meal tower`}
+        className="w-10 h-10 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg font-bold text-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 shadow-sm hover:shadow-md flex items-center justify-center"
+        title={`Add ${food.shortName || food.name} to meal`}
       >
         +
       </button>

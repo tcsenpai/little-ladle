@@ -37,11 +37,11 @@ export function WHOCompliancePanel({ mealFoods, childProfile }: WHOCompliancePan
 
   if (!childProfile) {
     return (
-      <div className="bg-gradient-to-b from-white/90 to-white/70 backdrop-blur-sm rounded-2xl shadow-2xl border-2 border-white/50 h-full">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 h-full">
         <div className="p-6 h-full flex flex-col items-center justify-center">
-          <div className="text-6xl mb-4">👶</div>
-          <h3 className="text-xl font-black text-gray-800 mb-2">Create Child Profile</h3>
-          <p className="text-sm text-gray-600 text-center">
+          <div className="text-5xl mb-4 text-gray-400">👶</div>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Create Child Profile</h3>
+          <p className="text-sm text-gray-500 text-center">
             Add your child's profile to get personalized WHO nutrition compliance scoring
           </p>
         </div>
@@ -53,15 +53,15 @@ export function WHOCompliancePanel({ mealFoods, childProfile }: WHOCompliancePan
   
   if (ageCalc.ageGroup === 'under_6_months' || ageCalc.ageGroup === 'over_24_months') {
     return (
-      <div className="bg-gradient-to-b from-white/90 to-white/70 backdrop-blur-sm rounded-2xl shadow-2xl border-2 border-white/50 h-full">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 h-full">
         <div className="p-6 h-full flex flex-col items-center justify-center">
-          <div className="text-6xl mb-4">
+          <div className="text-5xl mb-4 text-gray-400">
             {ageCalc.ageGroup === 'under_6_months' ? '🍼' : '🧒'}
           </div>
-          <h3 className="text-xl font-black text-gray-800 mb-2">
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
             {ageCalc.ageGroup === 'under_6_months' ? 'Too Young' : 'Beyond Guidelines'}
           </h3>
-          <p className="text-sm text-gray-600 text-center">
+          <p className="text-sm text-gray-500 text-center">
             WHO complementary feeding guidelines apply to children 6-23 months old
           </p>
         </div>
@@ -71,11 +71,11 @@ export function WHOCompliancePanel({ mealFoods, childProfile }: WHOCompliancePan
 
   if (mealFoods.length === 0) {
     return (
-      <div className="bg-gradient-to-b from-white/90 to-white/70 backdrop-blur-sm rounded-2xl shadow-2xl border-2 border-white/50 h-full">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 h-full">
         <div className="p-6 h-full flex flex-col items-center justify-center">
-          <div className="text-6xl mb-4">🍽️</div>
-          <h3 className="text-xl font-black text-gray-800 mb-2">Build a Meal</h3>
-          <p className="text-sm text-gray-600 text-center">
+          <div className="text-5xl mb-4 text-gray-400">🍽️</div>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Build a Meal</h3>
+          <p className="text-sm text-gray-500 text-center">
             Add foods to your meal tower to see WHO compliance scoring for {childProfile.name}
           </p>
         </div>
@@ -85,7 +85,7 @@ export function WHOCompliancePanel({ mealFoods, childProfile }: WHOCompliancePan
 
   if (isLoading || !complianceScore) {
     return (
-      <div className="bg-gradient-to-b from-white/90 to-white/70 backdrop-blur-sm rounded-2xl shadow-2xl border-2 border-white/50 h-full">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 h-full">
         <div className="p-6 h-full flex flex-col items-center justify-center">
           <div className="animate-spin w-12 h-12 border-4 border-emerald-500 border-t-transparent rounded-full mb-4"></div>
           <p className="text-gray-600">Calculating WHO compliance...</p>
@@ -105,7 +105,7 @@ export function WHOCompliancePanel({ mealFoods, childProfile }: WHOCompliancePan
   const scoreStyle = getScoreStyle(complianceScore.overallScore);
 
   return (
-    <div className="bg-gradient-to-b from-white/90 to-white/70 backdrop-blur-sm rounded-2xl shadow-2xl border-2 border-white/50 h-full">
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 h-full">
       {/* Header */}
       <div className="p-6 border-b-2 border-emerald-100">
         <div className="flex items-center gap-3 mb-4">
@@ -246,31 +246,31 @@ export function WHOCompliancePanel({ mealFoods, childProfile }: WHOCompliancePan
 
         {/* Risk Alerts */}
         {complianceScore.riskAlerts.length > 0 && (
-          <div className="mt-4">
-            <h4 className="text-sm font-bold text-gray-800 mb-2">⚠️ Alerts</h4>
-            <div className="space-y-2">
+          <div className="mt-6">
+            <h4 className="text-sm font-medium text-gray-900 mb-3">Alerts & Recommendations</h4>
+            <div className="space-y-3">
               {complianceScore.riskAlerts.map((alert, index) => (
-                <div key={index} className={`p-3 rounded-xl text-xs ${
-                  alert.severity === 'high' ? 'bg-red-50 border border-red-200' :
-                  alert.severity === 'medium' ? 'bg-yellow-50 border border-yellow-200' :
-                  'bg-blue-50 border border-blue-200'
+                <div key={index} className={`p-3 rounded-lg border text-sm ${
+                  alert.severity === 'high' ? 'bg-red-50 border-red-200' :
+                  alert.severity === 'medium' ? 'bg-yellow-50 border-yellow-200' :
+                  'bg-blue-50 border-blue-200'
                 }`}>
-                  <div className="font-bold text-gray-800 mb-1">{alert.message}</div>
-                  <div className="text-gray-600">{alert.recommendation}</div>
+                  <div className="font-medium text-gray-900 mb-1">{alert.message}</div>
+                  <div className="text-gray-600 text-xs">{alert.recommendation}</div>
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* Recommendations */}
-        {complianceScore.recommendations.length > 0 && (
-          <div className="mt-4">
-            <h4 className="text-sm font-bold text-gray-800 mb-2">💡 Suggestions</h4>
-            <div className="space-y-1">
+        {/* General Recommendations */}
+        {complianceScore.recommendations.length > 0 && complianceScore.riskAlerts.length === 0 && (
+          <div className="mt-6">
+            <h4 className="text-sm font-medium text-gray-900 mb-3">Suggestions</h4>
+            <div className="space-y-2">
               {complianceScore.recommendations.map((rec, index) => (
-                <div key={index} className="text-xs text-gray-700 bg-gray-50 rounded-lg p-2">
-                  • {rec}
+                <div key={index} className="text-xs text-gray-700 bg-gray-50 rounded-md p-2 border border-gray-200">
+                  {rec}
                 </div>
               ))}
             </div>

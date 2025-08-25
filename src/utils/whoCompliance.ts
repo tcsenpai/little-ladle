@@ -160,7 +160,7 @@ export async function calculateWHOCompliance(
   // 3. Food Diversity Score (25 points)
   const categories = new Set(mealFoods.map(mf => mf.food.category));
   const diversityCount = categories.size;
-  const diversityScore = Math.min((diversityCount / 4) * 25, 25); // Max at 4+ categories
+  const diversityScore = Math.min((diversityCount / 3) * 25, 25); // Max at 3+ categories
   
   // 4. Age Appropriate Score (15 points)
   const inappropriateFoods = mealFoods.filter(mf => !isAgeAppropriate(mf.food, ageCalc));
@@ -171,8 +171,15 @@ export async function calculateWHOCompliance(
   const keyNutrients = ['iron', 'vitaminA'];
   const adequateNutrients = keyNutrients.filter(nutrient => {
     const percentDaily = intakeWithPercents[nutrient]?.percentDaily || 0;
-    console.log(`${nutrient}: ${intakeWithPercents[nutrient]?.amount || 0} (${percentDaily.toFixed(1)}% of daily needs)`);
-    return percentDaily >= 25; // 25% threshold for complementary feeding
+    const actualAmount = intakeWithPercents[nutrient]?.amount || 0;
+    console.log(`${nutrient}: ${actualAmount.toFixed(2)}${intakeWithPercents[nutrient]?.unit || ''} (${percentDaily.toFixed(1)}% of daily needs)`);
+    
+    // Realistic thresholds for complementary feeding with small serving sizes
+    // A single meal with 2-3 foods of 10-20g each typically provides 5-10% of daily needs
+    // This is normal and expected for complementary feeding
+    const threshold = nutrient === 'iron' ? 5 : 3; // Iron: 5%, Vitamin A: 3%
+    
+    return percentDaily >= threshold;
   });
   const nutrientScore = (adequateNutrients.length / keyNutrients.length) * 10;
   
@@ -218,7 +225,9 @@ export async function calculateWHOCompliance(
   }
   
   const deficientNutrients = keyNutrients.filter(nutrient => {
-    return (intakeWithPercents[nutrient]?.percentDaily || 0) < 20; // Lower threshold for complementary
+    // Very low thresholds for deficiency - complementary feeding with small portions
+    const threshold = nutrient === 'iron' ? 3 : 2; // Iron: 3%, Vitamin A: 2%
+    return (intakeWithPercents[nutrient]?.percentDaily || 0) < threshold;
   });
   
   if (deficientNutrients.length > 0) {
@@ -241,7 +250,7 @@ export async function calculateWHOCompliance(
   if (!hasFruitsVeggies) {
     recommendations.push('Include fruits or vegetables for essential vitamins');
   }
-  if (diversityCount < 4) {
+  if (diversityCount < 3) {
     recommendations.push('Add more food variety for balanced nutrition');
   }
   if (overallScore >= 80) {
@@ -264,7 +273,7 @@ export async function calculateWHOCompliance(
       foodDiversity: {
         score: diversityScore,
         count: diversityCount,
-        message: `${diversityCount} food categories (target: 4+)`
+        message: `${diversityCount} food categories (target: 3+)`
       },
       ageAppropriate: {
         score: ageScore,

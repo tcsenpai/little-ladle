@@ -50,32 +50,32 @@ export function MealTower({
   }, { calories: 0, iron: 0, protein: 0, calcium: 0 });
 
   return (
-    <div className="bg-gradient-to-b from-white/90 to-white/70 backdrop-blur-sm rounded-2xl shadow-2xl border-2 border-white/50 min-h-[600px]">
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 min-h-[600px]">
       {/* Header */}
-      <div className="bg-gradient-to-r from-emerald-100 via-sky-100 to-violet-100 p-6 border-b-2 border-white/50 rounded-t-2xl">
+      <div className="p-6 border-b border-gray-100">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-gradient-to-r from-emerald-500 to-violet-500 rounded-full flex items-center justify-center shadow-lg">
+            <div className="w-12 h-12 bg-indigo-100 rounded-2xl flex items-center justify-center">
               <span className="text-2xl">🏗️</span>
             </div>
             <div>
-              <h2 className="text-2xl font-black text-transparent bg-gradient-to-r from-emerald-600 to-violet-600 bg-clip-text">
-                Sophie's Meal Tower
+              <h2 className="text-xl font-semibold text-gray-900">
+                Meal Builder
               </h2>
-              <p className="text-sm text-gray-600 font-medium mt-1">
-                Stack ingredients to build the ultimate meal!
+              <p className="text-sm text-gray-500 mt-1">
+                Add foods to build a balanced meal
               </p>
             </div>
           </div>
           {mealFoods.length > 0 && (
             <div className="flex items-center gap-4">
-              <div className="bg-white/90 px-4 py-2 rounded-2xl shadow-lg border-2 border-emerald-200">
-                <span className="text-sm text-gray-600 font-medium">Tower Level: </span>
-                <span className="font-black text-lg text-transparent bg-gradient-to-r from-emerald-600 to-sky-600 bg-clip-text">{mealFoods.length}</span>
+              <div className="bg-gray-100 px-3 py-2 rounded-lg">
+                <span className="text-sm text-gray-600">Items: </span>
+                <span className="font-semibold text-gray-900">{mealFoods.length}</span>
               </div>
               <button
                 onClick={onClearMeal}
-                className="px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-2xl text-sm font-black transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
+                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-semibold transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
               >
                 🗑️ Reset Tower
               </button>
@@ -91,24 +91,27 @@ export function MealTower({
         ) : (
           <>
             {/* Nutrition Summary */}
-            <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-4 mb-6 border border-green-200">
-              <h3 className="text-sm font-bold text-gray-700 mb-2">📊 Meal Nutrition</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+            <div className="bg-gray-50 rounded-xl p-4 mb-6">
+              <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                <span>📊</span>
+                Nutrition Overview
+              </h3>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div className="text-center">
-                  <div className="text-lg font-bold text-orange-600">{Math.round(totalNutrition.calories)}</div>
-                  <div className="text-xs text-gray-600">Calories</div>
+                  <div className="text-lg font-semibold text-gray-900">{Math.round(totalNutrition.calories)}</div>
+                  <div className="text-xs text-gray-500">Calories</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-lg font-bold text-red-600">{totalNutrition.iron.toFixed(1)}mg</div>
-                  <div className="text-xs text-gray-600">Iron</div>
+                  <div className="text-lg font-semibold text-gray-900">{totalNutrition.iron.toFixed(1)}</div>
+                  <div className="text-xs text-gray-500">Iron (mg)</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-lg font-bold text-purple-600">{totalNutrition.protein.toFixed(1)}g</div>
-                  <div className="text-xs text-gray-600">Protein</div>
+                  <div className="text-lg font-semibold text-gray-900">{totalNutrition.protein.toFixed(1)}</div>
+                  <div className="text-xs text-gray-500">Protein (g)</div>
                 </div>
                 <div className="text-center">
-                  <div className="text-lg font-bold text-blue-600">{Math.round(totalNutrition.calcium)}mg</div>
-                  <div className="text-xs text-gray-600">Calcium</div>
+                  <div className="text-lg font-semibold text-gray-900">{Math.round(totalNutrition.calcium)}</div>
+                  <div className="text-xs text-gray-500">Calcium (mg)</div>
                 </div>
               </div>
             </div>
@@ -150,10 +153,10 @@ export function MealTower({
               )}
             </div>
 
-            {/* Tower Base */}
-            <div className="mt-4 h-4 bg-gradient-to-r from-green-200 via-blue-200 to-purple-200 rounded-lg shadow-sm">
-              <div className="text-center text-xs text-gray-500 pt-1">
-                Meal Foundation
+            {/* Meal Foundation */}
+            <div className="mt-6 p-3 bg-gray-100 rounded-xl">
+              <div className="text-center text-xs text-gray-500">
+                Meal Foundation • {mealFoods.length} items
               </div>
             </div>
           </>
@@ -166,14 +169,14 @@ export function MealTower({
 function EmptyTower() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[400px] text-gray-400">
-      <div className="text-8xl mb-6">🏗️</div>
-      <h3 className="text-2xl font-bold mb-2">Start Building!</h3>
-      <p className="text-lg text-center max-w-md mb-4">
-        Click the <span className="text-green-500 font-bold">+</span> button next to foods to start building Sophie's meal tower
+      <div className="text-6xl mb-6">🍽️</div>
+      <h3 className="text-xl font-semibold text-gray-900 mb-2">Start Building</h3>
+      <p className="text-sm text-center max-w-md mb-4 text-gray-500">
+        Click the <span className="text-indigo-600 font-semibold">+</span> button next to foods to add them to your meal
       </p>
-      <div className="flex items-center gap-2 text-sm bg-green-50 px-4 py-2 rounded-lg border border-green-200">
+      <div className="flex items-center gap-2 text-sm bg-indigo-50 px-4 py-3 rounded-xl border border-indigo-100">
         <span className="text-lg">💡</span>
-        <span>Foods stack from bottom to top like building blocks!</span>
+        <span className="text-indigo-700">Add foods from different categories for balanced nutrition</span>
       </div>
     </div>
   );

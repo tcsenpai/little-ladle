@@ -130,82 +130,92 @@ export function SimpleMealBuilder() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-sky-50 to-violet-50">
-      {/* Header */}
-      <div className="bg-white/90 backdrop-blur-sm shadow-xl border-b-2 border-gradient-to-r from-emerald-200 to-violet-200">
-        <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-black text-transparent bg-gradient-to-r from-emerald-600 to-violet-600 bg-clip-text flex items-center gap-3">
-                🍽️ PappoBot
-                <span className="text-lg font-bold text-gray-600">Meal Builder</span>
-              </h1>
-              <p className="text-sm text-gray-600 mt-2 font-medium">
-                🎮 Select serving size → Click + to build Sophie's meal tower!
-              </p>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100">
+      {/* Modern Material Header */}
+      <header className="bg-white shadow-sm">
+        <div className="w-full px-6">
+          <div className="flex items-center justify-between h-20">
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-md">
+                <span className="text-2xl">🍽️</span>
+              </div>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+                  PappoBot
+                </h1>
+                <p className="text-sm text-gray-500 font-medium">
+                  WHO-Compliant Baby Nutrition Tracker
+                </p>
+              </div>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center space-x-3">
               <button
                 onClick={() => setIsAutoChefModalOpen(true)}
-                className="px-6 py-3 bg-gradient-to-r from-violet-500 to-pink-500 hover:from-violet-600 hover:to-pink-600 text-white font-black text-sm rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl flex items-center gap-2"
+                className="inline-flex items-center px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
               >
-                <span className="text-lg">👨‍🍳</span>
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
                 Auto-Chef
               </button>
               <button
                 onClick={() => setIsAddFoodModalOpen(true)}
-                className="px-6 py-3 bg-gradient-to-r from-emerald-500 to-sky-500 hover:from-emerald-600 hover:to-sky-600 text-white font-black text-sm rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl flex items-center gap-2"
+                className="inline-flex items-center px-5 py-2.5 bg-white hover:bg-gray-50 text-gray-700 text-sm font-semibold rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
               >
-                <span className="text-lg">🔍</span>
-                Add New Food
+                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                </svg>
+                Add Food
               </button>
             </div>
           </div>
         </div>
-      </div>
+      </header>
 
-      <div className="max-w-7xl mx-auto px-6 py-6">
-        {/* Child Profile Bar */}
-        <ChildProfileBar
-          profile={childProfile}
-          onEditProfile={handleEditChildProfile}
-          onCreateProfile={handleCreateChildProfile}
-        />
+      <main className="w-full px-6 py-8">
+        {/* Child Profile Section */}
+        <div className="mb-8">
+          <ChildProfileBar
+            profile={childProfile}
+            onEditProfile={handleEditChildProfile}
+            onCreateProfile={handleCreateChildProfile}
+          />
+        </div>
 
-        {/* Compact Serving Selector */}
-        <div className="mb-6 bg-white/90 backdrop-blur-sm rounded-xl p-4 border border-emerald-200 shadow-lg">
-          <div className="flex items-center justify-center gap-4">
-            <div className="flex items-center gap-2">
-              <span className="text-lg">⚖️</span>
-              <span className="font-bold text-gray-800 text-sm">Serving Size:</span>
-            </div>
-            <div className="flex gap-2">
-              {SERVING_OPTIONS.map(grams => (
-                <button
-                  key={grams}
-                  onClick={() => setSelectedServingSize(grams)}
-                  className={`
-                    px-3 py-2 rounded-lg font-bold text-sm transition-all duration-200 
-                    ${selectedServingSize === grams
-                      ? 'bg-gradient-to-r from-emerald-500 to-sky-500 text-white shadow-lg'
-                      : 'bg-gray-100 text-gray-700 hover:bg-emerald-100 border border-gray-300'
-                    }
-                  `}
-                >
-                  {grams}g
-                </button>
-              ))}
-            </div>
-            <div className="text-sm font-bold text-emerald-600">
-              Active: {selectedServingSize}g
+        {/* Modern Serving Size Selector */}
+        <div className="mb-8">
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-1">Serving Size</h3>
+                <p className="text-sm text-gray-500">Select portion size for each food item</p>
+              </div>
+              <div className="flex items-center space-x-2">
+                {SERVING_OPTIONS.map(grams => (
+                  <button
+                    key={grams}
+                    onClick={() => setSelectedServingSize(grams)}
+                    className={`
+                      px-4 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2
+                      ${selectedServingSize === grams
+                        ? 'bg-indigo-600 text-white shadow-md'
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      }
+                    `}
+                  >
+                    {grams}g
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-12 gap-6">
+        {/* Full-Width 3-Column Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
           
-          {/* Food Browse Panel - Left */}
-          <div className="col-span-3">
+          {/* Food Browse Panel */}
+          <div className="lg:col-span-3">
             <FoodBrowsePanel
               foods={availableFoods}
               categories={categories}
@@ -219,8 +229,8 @@ export function SimpleMealBuilder() {
             />
           </div>
 
-          {/* Meal Tower - Center */}
-          <div className="col-span-4">
+          {/* Meal Tower */}
+          <div className="lg:col-span-4">
             <MealTower
               mealFoods={mealFoods}
               onRemoveFood={handleRemoveFood}
@@ -232,17 +242,17 @@ export function SimpleMealBuilder() {
             />
           </div>
 
-          {/* Right Column - Split between Food Info and WHO Compliance */}
-          <div className="col-span-5 space-y-6">
+          {/* Info and Compliance Panels */}
+          <div className="lg:col-span-5 space-y-6">
             {/* Food Details Panel */}
-            <div className="h-80">
+            <div className="min-h-[320px]">
               <FoodInfoPanel 
                 food={selectedFood}
               />
             </div>
             
             {/* WHO Compliance Panel */}
-            <div className="h-96">
+            <div className="min-h-[384px]">
               <WHOCompliancePanel
                 mealFoods={mealFoods}
                 childProfile={childProfile}
@@ -250,7 +260,7 @@ export function SimpleMealBuilder() {
             </div>
           </div>
         </div>
-      </div>
+      </main>
 
       {/* Add Food Modal */}
       <AddFoodModal

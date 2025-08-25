@@ -12,12 +12,12 @@ export interface FeedingMode {
 export const FEEDING_MODES: { [key: string]: FeedingMode } = {
   complementary: {
     name: 'Complementary Feeding',
-    targetCompliance: 50, // 50% WHO compliance target
+    targetCompliance: 60, // 60% WHO compliance target for smarter recommendations
     description: 'Complementary to breast/formula feeding (recommended for 6-23 months)'
   },
   full: {
     name: 'Full Nutrition',
-    targetCompliance: 100, // 100% WHO compliance target  
+    targetCompliance: 80, // 80% WHO compliance target for highest tier
     description: 'Complete nutritional requirements from solid foods'
   }
 };

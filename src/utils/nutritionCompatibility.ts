@@ -66,12 +66,10 @@ export function convertUsdaToWho(nutrientKey: string, usdaValue: number): number
   
   // Apply special handling for vitamin A
   if (nutrientKey === 'vitaminA') {
-    // USDA vitamin A values are usually already in RAE (Retinol Activity Equivalents)
-    // If the value seems too high, it might be in IU and needs conversion
-    if (convertedValue > 2000) {
-      // Likely in IU, convert to RAE (1 RAE = 3.33 IU for food vitamin A)
-      return convertedValue / 3.33;
-    }
+    // USDA vitamin A values should already be in RAE (Retinol Activity Equivalents)
+    // Most food values are under 1000 µg RAE per 100g, so no conversion needed
+    // The original logic was incorrect - USDA FoodData Central already provides RAE values
+    console.log(`Vitamin A conversion: ${usdaValue} µg RAE (no conversion applied)`);
   }
   
   return convertedValue;
@@ -82,8 +80,8 @@ export function convertUsdaToWho(nutrientKey: string, usdaValue: number): number
  */
 export function validateNutrientValue(nutrientKey: string, value: number): boolean {
   const validRanges: { [key: string]: { min: number; max: number } } = {
-    'vitaminA': { min: 0, max: 2000 },      // µg RAE - reasonable range for food
-    'iron': { min: 0, max: 50 },            // mg - reasonable range for food
+    'vitaminA': { min: 0, max: 1500 },      // µg RAE - most foods are under 1000, organ meats can be higher
+    'iron': { min: 0, max: 30 },            // mg - reasonable range for food (organ meats highest)
     'calcium': { min: 0, max: 2000 },       // mg - reasonable range for food
     'vitaminC': { min: 0, max: 500 },       // mg - reasonable range for food
     'protein': { min: 0, max: 100 },        // g - per 100g of food
@@ -126,13 +124,12 @@ export function calculateCompatibleNutrientIntake(mealFoods: any[]): any {
       const usdaAmount = nutrient.amount * multiplier;
       const whoCompatibleAmount = convertUsdaToWho(nutrientKey, usdaAmount);
       
-      // Validate the converted value
-      if (validateNutrientValue(nutrientKey, whoCompatibleAmount)) {
-        intake[nutrientKey].amount += whoCompatibleAmount;
-      } else {
-        // Use original value if conversion seems wrong
-        intake[nutrientKey].amount += usdaAmount;
-        console.warn(`Using original USDA value for ${nutrientKey} due to validation failure`);
+      // Always use converted value for better traceability
+      intake[nutrientKey].amount += whoCompatibleAmount;
+      
+      // Log validation issues but don't reject values
+      if (!validateNutrientValue(nutrientKey, whoCompatibleAmount)) {
+        console.warn(`${nutrientKey} value ${whoCompatibleAmount.toFixed(2)} outside expected range, but using anyway`);
       }
     });
   }
