@@ -50,32 +50,32 @@ export function MealTower({
   }, { calories: 0, iron: 0, protein: 0, calcium: 0 });
 
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 min-h-[600px]">
+    <div className="bg-gradient-to-b from-white via-orange-50/30 to-yellow-50/30 dark:from-slate-800 dark:via-slate-700/30 dark:to-slate-800 rounded-2xl shadow-xl border-2 border-orange-200/50 dark:border-slate-600/50 min-h-[600px] overflow-hidden transition-colors duration-300">
       {/* Header */}
-      <div className="p-6 border-b border-gray-100">
+      <div className="bg-gradient-to-r from-orange-500 to-yellow-500 dark:from-orange-600 dark:to-yellow-600 p-6 text-white">
         <div className="flex justify-between items-center">
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-indigo-100 rounded-2xl flex items-center justify-center">
-              <span className="text-2xl">🏗️</span>
+            <div className="w-14 h-14 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center shadow-lg border border-white/30">
+              <span className="text-3xl">🏗️</span>
             </div>
             <div>
-              <h2 className="text-xl font-semibold text-gray-900">
+              <h2 className="text-2xl font-black text-white tracking-tight">
                 Meal Builder
               </h2>
-              <p className="text-sm text-gray-500 mt-1">
-                Add foods to build a balanced meal
+              <p className="text-orange-100 font-medium">
+                Stack foods to create balanced nutrition
               </p>
             </div>
           </div>
           {mealFoods.length > 0 && (
             <div className="flex items-center gap-4">
-              <div className="bg-gray-100 px-3 py-2 rounded-lg">
-                <span className="text-sm text-gray-600">Items: </span>
-                <span className="font-semibold text-gray-900">{mealFoods.length}</span>
+              <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-xl border border-white/30 shadow-lg">
+                <span className="text-sm text-orange-100">Items: </span>
+                <span className="font-black text-white text-lg">{mealFoods.length}</span>
               </div>
               <button
                 onClick={onClearMeal}
-                className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm font-semibold transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                className="px-4 py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white rounded-xl text-sm font-bold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/50 border border-white/30 hover:shadow-lg transform hover:scale-105"
               >
                 🗑️ Reset Tower
               </button>
@@ -90,28 +90,114 @@ export function MealTower({
           <EmptyTower />
         ) : (
           <>
-            {/* Nutrition Summary */}
-            <div className="bg-gray-50 rounded-xl p-4 mb-6">
-              <h3 className="text-sm font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                <span>📊</span>
+            {/* Enhanced Nutrition Summary with Distribution Chart */}
+            <div className="bg-gradient-to-r from-white via-orange-50/50 to-yellow-50/50 dark:from-slate-800 dark:via-slate-700/50 dark:to-slate-800 rounded-2xl p-6 mb-6 border-2 border-orange-100 dark:border-slate-600 shadow-lg transition-colors duration-300">
+              <h3 className="text-lg font-black text-gray-800 dark:text-slate-100 mb-4 flex items-center gap-2 transition-colors duration-300">
+                <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-xl flex items-center justify-center text-white shadow-sm">
+                  <span className="text-sm">📊</span>
+                </div>
                 Nutrition Overview
               </h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="text-center">
-                  <div className="text-lg font-semibold text-gray-900">{Math.round(totalNutrition.calories)}</div>
-                  <div className="text-xs text-gray-500">Calories</div>
+              
+              {/* Main Nutrition Cards */}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                <div className="bg-white dark:bg-slate-700 p-4 rounded-xl text-center shadow-sm border border-gray-100 dark:border-slate-600 hover:shadow-md transition-all duration-300">
+                  <div className="text-2xl font-black text-orange-600 mb-1">{Math.round(totalNutrition.calories)}</div>
+                  <div className="text-sm font-medium text-gray-600">Calories</div>
+                  <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                    <div className="bg-gradient-to-r from-orange-400 to-orange-500 h-2 rounded-full animate-fillProgress transition-all duration-1000" style={{ width: `${Math.min((totalNutrition.calories / 300) * 100, 100)}%` }}></div>
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">Target: 300 cal</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-lg font-semibold text-gray-900">{totalNutrition.iron.toFixed(1)}</div>
-                  <div className="text-xs text-gray-500">Iron (mg)</div>
+                <div className="bg-white dark:bg-slate-700 p-4 rounded-xl text-center shadow-sm border border-gray-100 dark:border-slate-600 hover:shadow-md transition-all duration-300">
+                  <div className="text-2xl font-black text-red-600 mb-1">{totalNutrition.iron.toFixed(1)}</div>
+                  <div className="text-sm font-medium text-gray-600">Iron (mg)</div>
+                  <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                    <div className="bg-gradient-to-r from-red-400 to-red-500 h-2 rounded-full animate-fillProgress transition-all duration-1000" style={{ width: `${Math.min((totalNutrition.iron / 10) * 100, 100)}%`, animationDelay: '0.2s' }}></div>
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">Target: 10mg</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-lg font-semibold text-gray-900">{totalNutrition.protein.toFixed(1)}</div>
-                  <div className="text-xs text-gray-500">Protein (g)</div>
+                <div className="bg-white dark:bg-slate-700 p-4 rounded-xl text-center shadow-sm border border-gray-100 dark:border-slate-600 hover:shadow-md transition-all duration-300">
+                  <div className="text-2xl font-black text-purple-600 mb-1">{totalNutrition.protein.toFixed(1)}</div>
+                  <div className="text-sm font-medium text-gray-600">Protein (g)</div>
+                  <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                    <div className="bg-gradient-to-r from-purple-400 to-purple-500 h-2 rounded-full animate-fillProgress transition-all duration-1000" style={{ width: `${Math.min((totalNutrition.protein / 15) * 100, 100)}%`, animationDelay: '0.4s' }}></div>
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">Target: 15g</div>
                 </div>
-                <div className="text-center">
-                  <div className="text-lg font-semibold text-gray-900">{Math.round(totalNutrition.calcium)}</div>
-                  <div className="text-xs text-gray-500">Calcium (mg)</div>
+                <div className="bg-white dark:bg-slate-700 p-4 rounded-xl text-center shadow-sm border border-gray-100 dark:border-slate-600 hover:shadow-md transition-all duration-300">
+                  <div className="text-2xl font-black text-blue-600 mb-1">{Math.round(totalNutrition.calcium)}</div>
+                  <div className="text-sm font-medium text-gray-600">Calcium (mg)</div>
+                  <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                    <div className="bg-gradient-to-r from-blue-400 to-blue-500 h-2 rounded-full animate-fillProgress transition-all duration-1000" style={{ width: `${Math.min((totalNutrition.calcium / 300) * 100, 100)}%`, animationDelay: '0.6s' }}></div>
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">Target: 300mg</div>
+                </div>
+              </div>
+              
+              {/* Category Distribution Mini-Chart */}
+              <div className="bg-white rounded-xl p-4 border border-gray-100 shadow-sm">
+                <h4 className="text-sm font-bold text-gray-800 mb-3 flex items-center gap-2">
+                  <span className="text-emerald-600">🌈</span>
+                  Food Category Distribution
+                </h4>
+                <div className="flex items-center space-x-1 mb-2">
+                  {(() => {
+                    const categoryCount = mealFoods.reduce((acc, mealFood) => {
+                      acc[mealFood.food.category] = (acc[mealFood.food.category] || 0) + 1;
+                      return acc;
+                    }, {} as Record<string, number>);
+                    
+                    const totalFoods = mealFoods.length;
+                    const segments: JSX.Element[] = [];
+                    
+                    Object.entries(categoryCount).forEach(([category, count]) => {
+                      const percentage = (count / totalFoods) * 100;
+                      const categoryColor = categoryColors[category as keyof typeof categoryColors] || '#6B7280';
+                      
+                      segments.push(
+                        <div
+                          key={category}
+                          className="h-3 rounded transition-all duration-500 hover:scale-y-150 relative group"
+                          style={{ 
+                            width: `${percentage}%`, 
+                            backgroundColor: categoryColor,
+                            minWidth: '4px'
+                          }}
+                          title={`${category}: ${count} items (${percentage.toFixed(1)}%)`}
+                        >
+                          <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-900 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
+                            {category}: {count}
+                          </div>
+                        </div>
+                      );
+                    });
+                    
+                    return segments;
+                  })()
+                }
+                </div>
+                <div className="flex flex-wrap gap-2 text-xs">
+                  {(() => {
+                    const categoryCount = mealFoods.reduce((acc, mealFood) => {
+                      acc[mealFood.food.category] = (acc[mealFood.food.category] || 0) + 1;
+                      return acc;
+                    }, {} as Record<string, number>);
+                    
+                    return Object.entries(categoryCount).map(([category, count]) => {
+                      const categoryColor = categoryColors[category as keyof typeof categoryColors] || '#6B7280';
+                      return (
+                        <div key={category} className="flex items-center gap-1">
+                          <div 
+                            className="w-3 h-3 rounded-full"
+                            style={{ backgroundColor: categoryColor }}
+                          ></div>
+                          <span className="text-gray-600 capitalize">{category} ({count})</span>
+                        </div>
+                      );
+                    });
+                  })()
+                }
                 </div>
               </div>
             </div>
@@ -119,6 +205,7 @@ export function MealTower({
             {/* Food Tower - Scrollable with 4 visible items */}
             <div className="relative">
               <div 
+                data-meal-tower
                 className="space-y-3 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
                 style={{ 
                   maxHeight: `${4 * 85}px`, // Show 4 items (approximate 85px per item)
@@ -168,15 +255,21 @@ export function MealTower({
 
 function EmptyTower() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-[400px] text-gray-400">
-      <div className="text-6xl mb-6">🍽️</div>
-      <h3 className="text-xl font-semibold text-gray-900 mb-2">Start Building</h3>
-      <p className="text-sm text-center max-w-md mb-4 text-gray-500">
-        Click the <span className="text-indigo-600 font-semibold">+</span> button next to foods to add them to your meal
+    <div className="flex flex-col items-center justify-center min-h-[400px] p-8">
+      <div className="text-8xl mb-6 animate-bounce">🍽️</div>
+      <h3 className="text-2xl font-black text-gray-800 mb-3">Ready to Build!</h3>
+      <p className="text-sm text-center max-w-md mb-6 text-gray-600 leading-relaxed">
+        Click the <span className="bg-emerald-500 text-white px-2 py-1 rounded-lg font-bold text-xs">+</span> button next to foods to add them to your meal tower
       </p>
-      <div className="flex items-center gap-2 text-sm bg-indigo-50 px-4 py-3 rounded-xl border border-indigo-100">
-        <span className="text-lg">💡</span>
-        <span className="text-indigo-700">Add foods from different categories for balanced nutrition</span>
+      <div className="bg-gradient-to-r from-orange-50 to-yellow-50 border-2 border-orange-200 px-6 py-4 rounded-2xl shadow-lg max-w-md">
+        <div className="flex items-center gap-3 text-sm">
+          <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-xl flex items-center justify-center shadow-sm">
+            <span className="text-white text-xs">💡</span>
+          </div>
+          <div className="text-orange-700 font-medium leading-relaxed">
+            Add foods from different categories for balanced nutrition and higher WHO compliance
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -208,11 +301,14 @@ function MealTowerItem({
   const categoryIcon = categoryIcons[food.category];
 
   return (
-    <div className={`
-      group relative transition-all duration-300 hover:shadow-lg
-      ${isSelected ? 'ring-2 ring-blue-400' : ''}
-      ${isTop ? 'animate-slideDown' : ''}
-    `}>
+    <div 
+      data-meal-food-id={mealFood.id}
+      className={`
+        group relative transition-all duration-500 hover:shadow-xl transform hover:scale-[1.02] animate-scaleUp
+        ${isSelected ? 'ring-4 ring-blue-400 ring-opacity-50' : ''}
+        ${isTop ? 'animate-celebrate' : ''}
+      `}
+    >
       {/* Connection Line to Previous Item */}
       {!isBottom && (
         <div className="absolute left-1/2 -bottom-3 w-0.5 h-3 bg-gradient-to-b from-gray-300 to-transparent transform -translate-x-px z-10"></div>
@@ -221,13 +317,14 @@ function MealTowerItem({
       {/* Food Item */}
       <div
         className="
-          flex items-center gap-4 p-4 rounded-xl border-2 shadow-sm
-          bg-white hover:bg-gray-50 transition-all duration-200
-          border-gray-200 hover:border-gray-300
+          flex items-center gap-4 p-5 rounded-2xl border-2 shadow-lg
+          bg-gradient-to-r from-white to-gray-50 hover:from-gray-50 hover:to-gray-100 transition-all duration-300
+          border-gray-200 hover:border-gray-300 group-hover:shadow-2xl
         "
         style={{
           borderLeftColor: categoryColor,
-          borderLeftWidth: '6px'
+          borderLeftWidth: '8px',
+          boxShadow: `0 4px 15px -3px ${categoryColor}20, 0 0 0 1px ${categoryColor}10`
         }}
       >
         {/* Food Info - Clickable */}
@@ -236,35 +333,46 @@ function MealTowerItem({
           className="flex items-center gap-3 flex-1 text-left hover:bg-gray-100 rounded-lg p-2 transition-colors"
         >
           <div 
-            className="w-12 h-12 rounded-lg flex items-center justify-center text-xl font-bold text-white shadow-sm"
-            style={{ backgroundColor: categoryColor }}
+            className="w-14 h-14 rounded-2xl flex items-center justify-center text-2xl font-bold text-white shadow-lg ring-2 ring-white/20 transition-all duration-300 group-hover:scale-110"
+            style={{ 
+              backgroundColor: categoryColor,
+              boxShadow: `0 6px 20px -5px ${categoryColor}40, 0 0 0 1px ${categoryColor}20`
+            }}
           >
             {categoryIcon}
           </div>
           
           <div className="flex-1">
-            <div className="font-bold text-gray-800">
+            <div className="font-black text-gray-900 text-lg group-hover:text-gray-700 transition-colors duration-200">
               {food.shortName || food.name.substring(0, 30)}
             </div>
-            <div className="text-sm text-gray-500 capitalize">
-              {food.category} • {servingGrams}g serving
+            <div className="flex items-center gap-3 mt-1">
+              <div 
+                className="text-xs font-bold px-2 py-1 rounded-lg text-white shadow-sm"
+                style={{ backgroundColor: categoryColor }}
+              >
+                {food.category}
+              </div>
+              <div className="text-sm font-medium text-gray-600">
+                {servingGrams}g serving
+              </div>
             </div>
           </div>
         </button>
 
-        {/* Serving Controls */}
+        {/* Serving Controls - 2x2 Grid Layout */}
         <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-500">Serving:</span>
-          <div className="flex gap-1">
+          <span className="text-xs text-gray-500 dark:text-slate-400">Serving:</span>
+          <div className="grid grid-cols-2 gap-1">
             {servingOptions.map(grams => (
               <button
                 key={grams}
                 onClick={() => onUpdateServing(grams)}
                 className={`
-                  w-10 h-8 rounded-lg text-xs font-bold transition-all duration-150
+                  w-10 h-7 rounded-lg text-xs font-bold transition-all duration-200 shadow-sm
                   ${grams === servingGrams 
-                    ? 'bg-green-500 text-white shadow-md transform scale-105' 
-                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    ? 'bg-gradient-to-r from-emerald-500 to-green-500 text-white shadow-md ring-1 ring-emerald-200' 
+                    : 'bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 hover:bg-gray-50 dark:hover:bg-slate-600 border border-gray-200 dark:border-slate-600 hover:border-gray-300 dark:hover:border-slate-500'
                   }
                 `}
               >
@@ -278,10 +386,11 @@ function MealTowerItem({
         <button
           onClick={onRemove}
           className="
-            w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 active:bg-red-700
-            text-white font-bold text-sm transition-all duration-150
-            hover:scale-110 active:scale-95 shadow-sm hover:shadow-md
-            opacity-0 group-hover:opacity-100 transition-opacity
+            w-10 h-10 rounded-2xl bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 active:from-red-700 active:to-red-800
+            text-white font-black text-lg transition-all duration-300
+            hover:scale-125 active:scale-95 shadow-lg hover:shadow-xl
+            opacity-0 group-hover:opacity-100 transform group-hover:rotate-12 hover:rotate-0
+            ring-2 ring-red-200 hover:ring-red-300
           "
           title={`Remove ${food.shortName || food.name}`}
         >

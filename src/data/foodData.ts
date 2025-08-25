@@ -23,12 +23,21 @@ export const getFoodsByAge = (ageGroup: Food['ageGroup']) =>
 export const getFoodById = (fdcId: number) => 
   foods.find(food => food.fdcId === fdcId);
 
-// Food category colors (from Tailwind config)
+// Nurturing color palette for baby nutrition
 export const categoryColors = {
-  fruit: '#FF6B6B',      // Warm red
-  vegetable: '#51CF66',   // Fresh green  
-  protein: '#845EC2',     // Purple
-  grain: '#FEC868',       // Golden yellow
-  dairy: '#4ECDC4',       // Soft teal
-  other: '#95A5A6'        // Neutral gray
+  fruit: '#F97316',       // Warm orange - energy and vitality
+  vegetable: '#10B981',   // Fresh green - growth and health  
+  protein: '#8B5CF6',     // Gentle purple - strength
+  grain: '#F59E0B',       // Golden amber - nourishment
+  dairy: '#06B6D4',       // Soft cyan - purity and calcium
+  other: '#64748B'        // Professional slate
+} as const;
+
+// Semantic color system for nutrition UI
+export const nutritionColors = {
+  excellent: '#10B981',   // Emerald green
+  good: '#3B82F6',        // Blue  
+  fair: '#F59E0B',        // Amber
+  poor: '#EF4444',        // Red
+  neutral: '#6B7280'      // Gray
 } as const;

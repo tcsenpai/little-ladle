@@ -3,34 +3,36 @@ import { ChildProfile } from '../types/child';
 import { calculateAge } from '../utils/ageCalculation';
 
 interface ChildProfileBarProps {
-  profile: ChildProfile | null;
+  profiles: ChildProfile[];
+  activeProfile: ChildProfile | null;
+  onSelectProfile: (profile: ChildProfile) => void;
   onEditProfile: () => void;
   onCreateProfile: () => void;
 }
 
-export function ChildProfileBar({ profile, onEditProfile, onCreateProfile }: ChildProfileBarProps) {
-  if (!profile) {
+export function ChildProfileBar({ profiles, activeProfile, onSelectProfile, onEditProfile, onCreateProfile }: ChildProfileBarProps) {
+  if (profiles.length === 0) {
     return (
-      <div className="bg-gradient-to-r from-amber-100 via-yellow-100 to-orange-100 border-2 border-yellow-200 rounded-2xl p-4 mb-6">
+      <div className="bg-gradient-to-r from-amber-100 via-yellow-100 to-orange-100 dark:from-amber-900/20 dark:via-yellow-900/20 dark:to-orange-900/20 border-2 border-yellow-200 dark:border-yellow-700 rounded-xl p-3 mb-4 transition-colors duration-300">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
-              <span className="text-2xl">👶</span>
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full flex items-center justify-center shadow-lg">
+              <span className="text-lg">👶</span>
             </div>
             <div>
-              <h3 className="text-lg font-black text-transparent bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text">
+              <h3 className="text-sm font-black text-transparent bg-gradient-to-r from-amber-600 to-orange-600 bg-clip-text">
                 No Child Profile
               </h3>
-              <p className="text-sm text-amber-700 font-medium">
+              <p className="text-xs text-amber-700 dark:text-amber-300 font-medium transition-colors duration-300">
                 Create a profile for personalized WHO nutrition tracking
               </p>
             </div>
           </div>
           <button
             onClick={onCreateProfile}
-            className="px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-black text-sm rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl flex items-center gap-2"
+            className="px-3 py-2 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-bold text-xs rounded-xl transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg flex items-center gap-1"
           >
-            <span className="text-lg">✨</span>
+            <span className="text-sm">✨</span>
             Create Profile
           </button>
         </div>
@@ -38,7 +40,11 @@ export function ChildProfileBar({ profile, onEditProfile, onCreateProfile }: Chi
     );
   }
 
-  const ageCalc = calculateAge(profile.birthday);
+  if (!activeProfile) {
+    return null;
+  }
+  
+  const ageCalc = calculateAge(activeProfile.birthday);
   
   // Determine WHO compliance status
   let whoStatus = '';
@@ -69,54 +75,84 @@ export function ChildProfileBar({ profile, onEditProfile, onCreateProfile }: Chi
   }
 
   return (
-    <div className="bg-gradient-to-r from-white/90 to-white/70 backdrop-blur-sm rounded-2xl shadow-2xl border-2 border-white/50 p-6 mb-6">
+    <div className="bg-gradient-to-r from-white/90 to-white/70 dark:from-slate-800/90 dark:to-slate-700/70 backdrop-blur-sm rounded-xl shadow-lg border border-white/50 dark:border-slate-600/50 p-3 mb-4 transition-colors duration-300">
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-6">
-          {/* Child Avatar */}
-          <div className={`w-16 h-16 bg-gradient-to-r ${profile.sex === 'female' ? 'from-pink-500 to-violet-500' : 'from-blue-500 to-cyan-500'} rounded-full flex items-center justify-center shadow-xl`}>
-            <span className="text-3xl">{profile.sex === 'female' ? '👧' : '👦'}</span>
-          </div>
-          
-          {/* Child Info */}
-          <div>
-            <h3 className="text-2xl font-black text-gray-800 mb-1">
-              {profile.name}
-            </h3>
-            <div className="flex items-center gap-4 text-sm">
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-gray-600">Age:</span>
-                <span className="font-black text-transparent bg-gradient-to-r from-emerald-600 to-sky-600 bg-clip-text">
-                  {ageCalc.displayAge}
-                </span>
+        <div className="flex items-center gap-3">
+          {/* Child Selector or Single Profile */}
+          {profiles.length > 1 ? (
+            <div className="flex items-center gap-3">
+              {/* Child Avatar */}
+              <div className={`w-10 h-10 bg-gradient-to-r ${activeProfile.sex === 'female' ? 'from-pink-500 to-violet-500' : 'from-blue-500 to-cyan-500'} rounded-full flex items-center justify-center shadow-lg`}>
+                <span className="text-lg">{activeProfile.sex === 'female' ? '👧' : '👦'}</span>
               </div>
-              <div className="w-1 h-1 bg-gray-400 rounded-full"></div>
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-gray-600">Sex:</span>
-                <span className="capitalize font-bold text-gray-700">{profile.sex}</span>
+              
+              {/* Child Dropdown */}
+              <div>
+                <select
+                  value={activeProfile.id}
+                  onChange={(e) => {
+                    const selectedProfile = profiles.find(p => p.id === e.target.value);
+                    if (selectedProfile) onSelectProfile(selectedProfile);
+                  }}
+                  className="text-sm font-bold text-gray-800 dark:text-slate-100 bg-transparent border-none focus:outline-none cursor-pointer transition-colors duration-300"
+                >
+                  {profiles.map(profile => (
+                    <option key={profile.id} value={profile.id} className="bg-white dark:bg-slate-800">
+                      {profile.name}
+                    </option>
+                  ))}
+                </select>
+                <div className="text-xs text-gray-600 dark:text-slate-400 transition-colors duration-300">
+                  {ageCalc.displayAge} • {activeProfile.sex}
+                </div>
               </div>
             </div>
-          </div>
-
-          {/* WHO Status Badge */}
-          <div className={`bg-gradient-to-r ${whoColor} text-white px-4 py-3 rounded-2xl shadow-lg`}>
-            <div className="flex items-center gap-2">
-              <span className="text-xl">{whoIcon}</span>
-              <div>
-                <div className="font-black text-sm leading-tight">{whoStatus}</div>
-                <div className="text-xs opacity-90">Active Guidelines</div>
+          ) : (
+            <div className="flex items-center gap-3">
+              {/* Single Child Avatar */}
+              <div className={`w-10 h-10 bg-gradient-to-r ${activeProfile.sex === 'female' ? 'from-pink-500 to-violet-500' : 'from-blue-500 to-cyan-500'} rounded-full flex items-center justify-center shadow-lg`}>
+                <span className="text-lg">{activeProfile.sex === 'female' ? '👧' : '👦'}</span>
               </div>
+              
+              {/* Single Child Info */}
+              <div>
+                <h3 className="text-sm font-black text-gray-800 dark:text-slate-100 transition-colors duration-300">
+                  {activeProfile.name}
+                </h3>
+                <div className="text-xs text-gray-600 dark:text-slate-400 transition-colors duration-300">
+                  {ageCalc.displayAge} • {activeProfile.sex}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Compact WHO Status Badge */}
+          <div className={`bg-gradient-to-r ${whoColor} text-white px-2 py-1 rounded-lg shadow-sm ml-2`}>
+            <div className="flex items-center gap-1">
+              <span className="text-sm">{whoIcon}</span>
+              <div className="text-xs font-bold leading-tight">{whoStatus}</div>
             </div>
           </div>
         </div>
 
-        {/* Edit Button */}
-        <button
-          onClick={onEditProfile}
-          className="px-6 py-3 bg-gradient-to-r from-violet-500 to-pink-500 hover:from-violet-600 hover:to-pink-600 text-white font-black text-sm rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl flex items-center gap-2"
-        >
-          <span className="text-lg">✏️</span>
-          Edit Profile
-        </button>
+        {/* Compact Action Buttons */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onCreateProfile}
+            className="px-2 py-1 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white font-bold text-xs rounded-lg transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md flex items-center gap-1"
+            title="Add Child"
+          >
+            <span className="text-xs">👶</span>
+            <span className="text-xs">+</span>
+          </button>
+          <button
+            onClick={onEditProfile}
+            className="px-2 py-1 bg-gradient-to-r from-violet-500 to-pink-500 hover:from-violet-600 hover:to-pink-600 text-white font-bold text-xs rounded-lg transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md flex items-center gap-1"
+            title="Edit Profile"
+          >
+            <span className="text-xs">✏️</span>
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -12,6 +12,7 @@ import { Food } from '../types/food';
 import { ChildProfile } from '../types/child';
 import { MealFood } from '../utils/whoCompliance';
 import { AutoChefSuggestion } from '../utils/autoChef';
+import { DarkModeToggle } from './DarkModeToggle';
 
 // USDA standard serving sizes in grams
 const SERVING_OPTIONS = [5, 10, 15, 20] as const;
@@ -24,19 +25,30 @@ export function SimpleMealBuilder() {
   const [isAddFoodModalOpen, setIsAddFoodModalOpen] = useState(false);
   const [availableFoods, setAvailableFoods] = useState<Food[]>(foods); // Dynamic food list
   
-  // Child profile state
-  const [childProfile, setChildProfile] = useState<ChildProfile | null>(null);
+  // Child profile state - supporting multiple children
+  const [childProfiles, setChildProfiles] = useState<ChildProfile[]>([]);
+  const [activeChildProfile, setActiveChildProfile] = useState<ChildProfile | null>(null);
   const [isChildProfileModalOpen, setIsChildProfileModalOpen] = useState(false);
   const [isAutoChefModalOpen, setIsAutoChefModalOpen] = useState(false);
 
-  // Load child profile from localStorage on mount
+  // Load child profiles from localStorage on mount
   useEffect(() => {
-    const savedProfile = localStorage.getItem('pappobot-child-profile');
-    if (savedProfile) {
+    const savedProfiles = localStorage.getItem('pappobot-child-profiles');
+    const savedActiveId = localStorage.getItem('pappobot-active-child-id');
+    
+    if (savedProfiles) {
       try {
-        setChildProfile(JSON.parse(savedProfile));
+        const profiles = JSON.parse(savedProfiles);
+        setChildProfiles(profiles);
+        
+        if (savedActiveId && profiles.length > 0) {
+          const activeProfile = profiles.find((p: ChildProfile) => p.id === savedActiveId) || profiles[0];
+          setActiveChildProfile(activeProfile);
+        } else if (profiles.length > 0) {
+          setActiveChildProfile(profiles[0]);
+        }
       } catch (error) {
-        console.error('Failed to load child profile:', error);
+        console.error('Failed to load child profiles:', error);
       }
     }
   }, []);
@@ -64,12 +76,32 @@ export function SimpleMealBuilder() {
     };
     
     console.log('Adding food to meal:', food.name, 'with serving size:', selectedServingSize, 'g');
-    setMealFoods(prev => [newMealFood, ...prev]); // Add to top of tower
+    
+    // Add satisfying feedback animation
+    const button = document.querySelector(`[data-food-id="${food.fdcId}"] .add-food-btn`);
+    if (button) {
+      button.classList.add('animate-celebrate');
+      setTimeout(() => {
+        button.classList.remove('animate-celebrate');
+      }, 600);
+    }
+    
+    setMealFoods(prev => [newMealFood, ...prev]); // Add to top of tower with animation
   }, [selectedServingSize]);
 
   const handleRemoveFood = useCallback((foodId: string) => {
     console.log('Removing food from meal:', foodId);
-    setMealFoods(prev => prev.filter(mealFood => mealFood.id !== foodId));
+    
+    // Add removal animation before actually removing
+    const foodElement = document.querySelector(`[data-meal-food-id="${foodId}"]`);
+    if (foodElement) {
+      foodElement.classList.add('animate-fadeOut');
+      setTimeout(() => {
+        setMealFoods(prev => prev.filter(mealFood => mealFood.id !== foodId));
+      }, 200); // Match fadeOut animation duration
+    } else {
+      setMealFoods(prev => prev.filter(mealFood => mealFood.id !== foodId));
+    }
   }, []);
 
   const handleUpdateServing = useCallback((foodId: string, newServingGrams: number) => {
@@ -100,9 +132,31 @@ export function SimpleMealBuilder() {
   }, []);
 
   const handleSaveChildProfile = useCallback((profile: ChildProfile) => {
-    setChildProfile(profile);
-    localStorage.setItem('pappobot-child-profile', JSON.stringify(profile));
+    setChildProfiles(prev => {
+      const existing = prev.find(p => p.id === profile.id);
+      let newProfiles;
+      
+      if (existing) {
+        // Update existing profile
+        newProfiles = prev.map(p => p.id === profile.id ? profile : p);
+      } else {
+        // Add new profile
+        newProfiles = [...prev, profile];
+      }
+      
+      localStorage.setItem('pappobot-child-profiles', JSON.stringify(newProfiles));
+      return newProfiles;
+    });
+    
+    setActiveChildProfile(profile);
+    localStorage.setItem('pappobot-active-child-id', profile.id);
     console.log('Saved child profile:', profile.name);
+  }, []);
+  
+  const handleSelectChildProfile = useCallback((profile: ChildProfile) => {
+    setActiveChildProfile(profile);
+    localStorage.setItem('pappobot-active-child-id', profile.id);
+    console.log('Selected child profile:', profile.name);
   }, []);
 
   const handleEditChildProfile = useCallback(() => {
@@ -114,10 +168,12 @@ export function SimpleMealBuilder() {
   }, []);
 
   const handleApplySuggestion = useCallback((suggestion: AutoChefSuggestion) => {
-    // Clear current meal
+    console.log('Applying auto-chef suggestion:', suggestion.name);
+    
+    // Clear current meal first (always, even if empty)
     setMealFoods([]);
     
-    // Add all foods from suggestion
+    // Create new meal foods from suggestion
     const newMealFoods: MealFood[] = suggestion.foods.map((food, index) => ({
       id: `suggested-${Date.now()}-${index}`,
       food: food.food,
@@ -125,33 +181,62 @@ export function SimpleMealBuilder() {
       addedAt: Date.now() + index
     }));
     
-    setMealFoods(newMealFoods);
-    console.log('Applied auto-chef suggestion:', suggestion.name);
-  }, []);
+    // If there were existing foods, add animation delay
+    if (mealFoods.length > 0) {
+      const tower = document.querySelector('[data-meal-tower]');
+      if (tower) {
+        tower.classList.add('animate-fadeOut');
+        setTimeout(() => {
+          // Add foods with staggered timing for smooth effect
+          newMealFoods.forEach((mealFood, index) => {
+            setTimeout(() => {
+              setMealFoods(prev => [...prev, mealFood]);
+            }, index * 150); // 150ms delay between each food
+          });
+          tower.classList.remove('animate-fadeOut');
+        }, 200);
+      } else {
+        // Fallback: add foods with stagger effect
+        newMealFoods.forEach((mealFood, index) => {
+          setTimeout(() => {
+            setMealFoods(prev => [...prev, mealFood]);
+          }, index * 100);
+        });
+      }
+    } else {
+      // No existing foods, add immediately with stagger effect
+      newMealFoods.forEach((mealFood, index) => {
+        setTimeout(() => {
+          setMealFoods(prev => [...prev, mealFood]);
+        }, index * 100); // Faster animation when starting from empty
+      });
+    }
+  }, [mealFoods.length]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-orange-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 transition-colors duration-300">
       {/* Modern Material Header */}
-      <header className="bg-white shadow-sm">
+      <header className="bg-white dark:bg-slate-800 shadow-sm border-b dark:border-slate-700 transition-colors duration-300">
         <div className="w-full px-6">
           <div className="flex items-center justify-between h-20">
             <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-md">
+              <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-orange-500 rounded-2xl flex items-center justify-center shadow-md">
                 <span className="text-2xl">🍽️</span>
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight transition-colors duration-300">
                   PappoBot
                 </h1>
-                <p className="text-sm text-gray-500 font-medium">
+                <p className="text-sm text-gray-500 dark:text-slate-300 font-medium transition-colors duration-300">
                   WHO-Compliant Baby Nutrition Tracker
                 </p>
               </div>
             </div>
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-4">
+              <DarkModeToggle />
               <button
                 onClick={() => setIsAutoChefModalOpen(true)}
-                className="inline-flex items-center px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold rounded-xl shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                className="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white text-sm font-semibold rounded-xl shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
               >
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -160,7 +245,7 @@ export function SimpleMealBuilder() {
               </button>
               <button
                 onClick={() => setIsAddFoodModalOpen(true)}
-                className="inline-flex items-center px-5 py-2.5 bg-white hover:bg-gray-50 text-gray-700 text-sm font-semibold rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                className="inline-flex items-center px-5 py-2.5 bg-white dark:bg-slate-700 hover:bg-orange-50 dark:hover:bg-slate-600 text-gray-700 dark:text-slate-200 hover:text-orange-700 dark:hover:text-orange-400 text-sm font-semibold rounded-xl border border-orange-200 dark:border-slate-600 shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800"
               >
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
@@ -174,42 +259,16 @@ export function SimpleMealBuilder() {
 
       <main className="w-full px-6 py-8">
         {/* Child Profile Section */}
-        <div className="mb-8">
+        <div className="mb-4">
           <ChildProfileBar
-            profile={childProfile}
+            profiles={childProfiles}
+            activeProfile={activeChildProfile}
+            onSelectProfile={handleSelectChildProfile}
             onEditProfile={handleEditChildProfile}
             onCreateProfile={handleCreateChildProfile}
           />
         </div>
 
-        {/* Modern Serving Size Selector */}
-        <div className="mb-8">
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-1">Serving Size</h3>
-                <p className="text-sm text-gray-500">Select portion size for each food item</p>
-              </div>
-              <div className="flex items-center space-x-2">
-                {SERVING_OPTIONS.map(grams => (
-                  <button
-                    key={grams}
-                    onClick={() => setSelectedServingSize(grams)}
-                    className={`
-                      px-4 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2
-                      ${selectedServingSize === grams
-                        ? 'bg-indigo-600 text-white shadow-md'
-                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                      }
-                    `}
-                  >
-                    {grams}g
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
 
         {/* Full-Width 3-Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
@@ -225,7 +284,10 @@ export function SimpleMealBuilder() {
               onAddFood={handleAddFood}
               onShowInfo={handleFoodInfo}
               selectedFood={selectedFood}
-              childProfile={childProfile}
+              childProfile={activeChildProfile}
+              selectedServingSize={selectedServingSize}
+              servingOptions={SERVING_OPTIONS}
+              onServingSizeChange={setSelectedServingSize}
             />
           </div>
 
@@ -243,19 +305,19 @@ export function SimpleMealBuilder() {
           </div>
 
           {/* Info and Compliance Panels */}
-          <div className="lg:col-span-5 space-y-6">
-            {/* Food Details Panel */}
-            <div className="min-h-[320px]">
-              <FoodInfoPanel 
-                food={selectedFood}
+          <div className="lg:col-span-5 space-y-3">
+            {/* WHO Compliance Panel - Now on top and thinner */}
+            <div className="min-h-[280px]">
+              <WHOCompliancePanel
+                mealFoods={mealFoods}
+                childProfile={activeChildProfile}
               />
             </div>
             
-            {/* WHO Compliance Panel */}
-            <div className="min-h-[384px]">
-              <WHOCompliancePanel
-                mealFoods={mealFoods}
-                childProfile={childProfile}
+            {/* Food Details Panel - Now below with reduced gap */}
+            <div className="min-h-[320px]">
+              <FoodInfoPanel 
+                food={selectedFood}
               />
             </div>
           </div>
@@ -274,7 +336,7 @@ export function SimpleMealBuilder() {
         isOpen={isChildProfileModalOpen}
         onClose={() => setIsChildProfileModalOpen(false)}
         onSave={handleSaveChildProfile}
-        existingProfile={childProfile}
+        existingProfile={activeChildProfile}
       />
 
       {/* Auto-Chef Modal */}
@@ -282,7 +344,7 @@ export function SimpleMealBuilder() {
         isOpen={isAutoChefModalOpen}
         onClose={() => setIsAutoChefModalOpen(false)}
         mealFoods={mealFoods}
-        childProfile={childProfile}
+        childProfile={activeChildProfile}
         availableFoods={availableFoods}
         onAddFood={handleAddFood}
         onApplySuggestion={handleApplySuggestion}
