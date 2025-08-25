@@ -5,17 +5,18 @@ import { categoryColors } from '../data/foodData';
 interface MealFood {
   id: string;
   food: Food;
-  portionSize: number;
+  servingGrams: number;
   addedAt: number;
 }
 
 interface MealTowerProps {
   mealFoods: MealFood[];
   onRemoveFood: (foodId: string) => void;
-  onUpdatePortion: (foodId: string, portion: number) => void;
+  onUpdateServing: (foodId: string, servingGrams: number) => void;
   onClearMeal: () => void;
   onShowInfo: (food: Food) => void;
   selectedFood: Food | null;
+  servingOptions: readonly number[];
 }
 
 const categoryIcons = {
@@ -30,47 +31,53 @@ const categoryIcons = {
 export function MealTower({
   mealFoods,
   onRemoveFood,
-  onUpdatePortion,
+  onUpdateServing,
   onClearMeal,
   onShowInfo,
-  selectedFood
+  selectedFood,
+  servingOptions
 }: MealTowerProps) {
-  // Calculate total nutrition
+  // Calculate total nutrition (USDA values are per 100g, so we multiply by servingGrams/100)
   const totalNutrition = mealFoods.reduce((total, mealFood) => {
-    const mult = mealFood.portionSize;
+    const multiplier = mealFood.servingGrams / 100; // Convert from per 100g to actual serving
     const food = mealFood.food;
     return {
-      calories: total.calories + ((food.nutrients.calories?.amount ?? 0) * mult),
-      iron: total.iron + ((food.nutrients.iron?.amount ?? 0) * mult),
-      protein: total.protein + ((food.nutrients.protein?.amount ?? 0) * mult),
-      calcium: total.calcium + ((food.nutrients.calcium?.amount ?? 0) * mult),
+      calories: total.calories + ((food.nutrients.calories?.amount ?? 0) * multiplier),
+      iron: total.iron + ((food.nutrients.iron?.amount ?? 0) * multiplier),
+      protein: total.protein + ((food.nutrients.protein?.amount ?? 0) * multiplier),
+      calcium: total.calcium + ((food.nutrients.calcium?.amount ?? 0) * multiplier),
     };
   }, { calories: 0, iron: 0, protein: 0, calcium: 0 });
 
   return (
-    <div className="bg-white rounded-xl shadow-lg border border-gray-200 min-h-[600px]">
+    <div className="bg-gradient-to-b from-white/90 to-white/70 backdrop-blur-sm rounded-2xl shadow-2xl border-2 border-white/50 min-h-[600px]">
       {/* Header */}
-      <div className="bg-gradient-to-r from-green-100 to-blue-100 p-4 border-b border-gray-200 rounded-t-xl">
+      <div className="bg-gradient-to-r from-emerald-100 via-sky-100 to-violet-100 p-6 border-b-2 border-white/50 rounded-t-2xl">
         <div className="flex justify-between items-center">
-          <div>
-            <h2 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-              🏗️ Sophie's Meal Tower
-            </h2>
-            <p className="text-sm text-gray-600 mt-1">
-              Stack foods to build the perfect meal!
-            </p>
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-gradient-to-r from-emerald-500 to-violet-500 rounded-full flex items-center justify-center shadow-lg">
+              <span className="text-2xl">🏗️</span>
+            </div>
+            <div>
+              <h2 className="text-2xl font-black text-transparent bg-gradient-to-r from-emerald-600 to-violet-600 bg-clip-text">
+                Sophie's Meal Tower
+              </h2>
+              <p className="text-sm text-gray-600 font-medium mt-1">
+                Stack ingredients to build the ultimate meal!
+              </p>
+            </div>
           </div>
           {mealFoods.length > 0 && (
-            <div className="flex items-center gap-3">
-              <div className="bg-white px-3 py-1 rounded-full shadow-sm">
-                <span className="text-sm text-gray-600">Foods: </span>
-                <span className="font-bold text-green-600">{mealFoods.length}</span>
+            <div className="flex items-center gap-4">
+              <div className="bg-white/90 px-4 py-2 rounded-2xl shadow-lg border-2 border-emerald-200">
+                <span className="text-sm text-gray-600 font-medium">Tower Level: </span>
+                <span className="font-black text-lg text-transparent bg-gradient-to-r from-emerald-600 to-sky-600 bg-clip-text">{mealFoods.length}</span>
               </div>
               <button
                 onClick={onClearMeal}
-                className="px-4 py-2 bg-red-500 text-white rounded-full text-sm font-medium hover:bg-red-600 transition-colors"
+                className="px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-2xl text-sm font-black transition-all duration-300 transform hover:scale-105 active:scale-95 shadow-lg hover:shadow-xl"
               >
-                Clear All
+                🗑️ Reset Tower
               </button>
             </div>
           )}
@@ -106,20 +113,41 @@ export function MealTower({
               </div>
             </div>
 
-            {/* Food Tower */}
-            <div className="space-y-3">
-              {mealFoods.map((mealFood, index) => (
-                <MealTowerItem
-                  key={mealFood.id}
-                  mealFood={mealFood}
-                  isTop={index === 0}
-                  isBottom={index === mealFoods.length - 1}
-                  isSelected={selectedFood?.fdcId === mealFood.food.fdcId}
-                  onRemove={() => onRemoveFood(mealFood.id)}
-                  onUpdatePortion={(portion) => onUpdatePortion(mealFood.id, portion)}
-                  onShowInfo={() => onShowInfo(mealFood.food)}
-                />
-              ))}
+            {/* Food Tower - Scrollable with 4 visible items */}
+            <div className="relative">
+              <div 
+                className="space-y-3 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
+                style={{ 
+                  maxHeight: `${4 * 85}px`, // Show 4 items (approximate 85px per item)
+                }}
+              >
+                {mealFoods.map((mealFood, index) => (
+                  <MealTowerItem
+                    key={mealFood.id}
+                    mealFood={mealFood}
+                    isTop={index === 0}
+                    isBottom={index === mealFoods.length - 1}
+                    isSelected={selectedFood?.fdcId === mealFood.food.fdcId}
+                    onRemove={() => onRemoveFood(mealFood.id)}
+                    onUpdateServing={(servingGrams) => onUpdateServing(mealFood.id, servingGrams)}
+                    onShowInfo={() => onShowInfo(mealFood.food)}
+                    servingOptions={servingOptions}
+                  />
+                ))}
+              </div>
+              
+              {/* Scroll indicator when there are more than 4 items */}
+              {mealFoods.length > 4 && (
+                <div className="absolute -right-1 top-1/2 transform -translate-y-1/2 flex flex-col items-center gap-1 text-gray-400">
+                  <div className="text-xs font-medium">Scroll</div>
+                  <div className="flex flex-col gap-1">
+                    <div className="w-1 h-1 bg-gray-400 rounded-full animate-bounce"></div>
+                    <div className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                    <div className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                  </div>
+                  <div className="text-xs font-medium">{mealFoods.length - 4}+ more</div>
+                </div>
+              )}
             </div>
 
             {/* Tower Base */}
@@ -157,8 +185,9 @@ interface MealTowerItemProps {
   isBottom: boolean;
   isSelected: boolean;
   onRemove: () => void;
-  onUpdatePortion: (portion: number) => void;
+  onUpdateServing: (servingGrams: number) => void;
   onShowInfo: () => void;
+  servingOptions: readonly number[];
 }
 
 function MealTowerItem({
@@ -167,10 +196,11 @@ function MealTowerItem({
   isBottom,
   isSelected,
   onRemove,
-  onUpdatePortion,
-  onShowInfo
+  onUpdateServing,
+  onShowInfo,
+  servingOptions
 }: MealTowerItemProps) {
-  const { food, portionSize } = mealFood;
+  const { food, servingGrams } = mealFood;
   const categoryColor = categoryColors[food.category];
   const categoryIcon = categoryIcons[food.category];
 
@@ -214,28 +244,28 @@ function MealTowerItem({
               {food.shortName || food.name.substring(0, 30)}
             </div>
             <div className="text-sm text-gray-500 capitalize">
-              {food.category} • {portionSize === 1 ? '1 serving' : `${portionSize} servings`}
+              {food.category} • {servingGrams}g serving
             </div>
           </div>
         </button>
 
-        {/* Portion Controls */}
+        {/* Serving Controls */}
         <div className="flex items-center gap-2">
-          <span className="text-xs text-gray-500">Portion:</span>
+          <span className="text-xs text-gray-500">Serving:</span>
           <div className="flex gap-1">
-            {[0.5, 1, 1.5, 2].map(size => (
+            {servingOptions.map(grams => (
               <button
-                key={size}
-                onClick={() => onUpdatePortion(size)}
+                key={grams}
+                onClick={() => onUpdateServing(grams)}
                 className={`
-                  w-8 h-8 rounded-lg text-xs font-bold transition-all duration-150
-                  ${size === portionSize 
+                  w-10 h-8 rounded-lg text-xs font-bold transition-all duration-150
+                  ${grams === servingGrams 
                     ? 'bg-green-500 text-white shadow-md transform scale-105' 
                     : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                   }
                 `}
               >
-                {size === 0.5 ? '½' : size}
+                {grams}g
               </button>
             ))}
           </div>

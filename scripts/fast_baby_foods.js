@@ -16,6 +16,7 @@ const MAX_REQUESTS = 300;
 
 // Correct nutrient IDs
 const nutrientMap = {
+  1008: { key: 'calories', name: 'Energy' }, // ⚠️ This was missing!
   1003: { key: 'protein', name: 'Protein' },
   1004: { key: 'fat', name: 'Total Fat' },
   1005: { key: 'carbs', name: 'Carbohydrates' },
@@ -26,16 +27,45 @@ const nutrientMap = {
   1179: { key: 'potassium', name: 'Potassium' }
 };
 
-// Core baby foods only
+// Comprehensive baby foods for Sophie (7+ months) - including all requested items
 const CORE_FOODS = {
   essentials: [
+    // User specifically requested these - PRIORITY:
+    'chicken breast cooked', 'chicken thigh cooked', 'ground chicken cooked',
+    'beef ground cooked', 'beef chuck cooked', 'beef sirloin cooked',
+    'carrots raw', 'carrots cooked', 'carrots steamed',
+    'zucchini raw', 'zucchini cooked', 'zucchini steamed',
+    'cod cooked', 'tilapia cooked', 'haddock cooked', 'flounder cooked',
+    'salmon cooked', 'salmon canned', 'salmon fillet',
+    'olive oil extra virgin', 'olive oil',
+    
+    // Essential baby foods
     'avocado raw', 'banana raw', 'sweet potato cooked', 
-    'apple raw', 'broccoli raw', 'chicken breast cooked',
-    'salmon cooked', 'egg whole cooked', 'lentils cooked',
+    'apple raw', 'broccoli raw', 'broccoli cooked',
+    'egg whole cooked', 'lentils cooked',
     'yogurt plain whole milk', 'cheddar cheese', 'quinoa cooked',
     'blueberries raw', 'spinach cooked', 'brown rice cooked',
     'oatmeal cooked', 'peas cooked', 'strawberries raw',
-    'ground turkey cooked', 'butternut squash cooked'
+    'ground turkey cooked', 'butternut squash cooked',
+    
+    // Additional iron-rich foods (Sophie needs iron!)
+    'tofu firm', 'black beans cooked',
+    'kidney beans cooked', 'pumpkin seeds', 'sesame seeds',
+    'dark chocolate', 'dried apricots',
+    
+    // More fruits & vegetables
+    'mango raw', 'papaya raw', 'pear raw', 'peach raw',
+    'cauliflower cooked', 'green beans cooked', 'corn kernels',
+    'bell peppers raw', 'sweet peas cooked',
+    
+    // Healthy fats & proteins  
+    'sardines canned', 'mackerel cooked',
+    'greek yogurt', 'ricotta cheese', 'cottage cheese',
+    'almond butter', 'sunflower seed butter', 'tahini',
+    
+    // Whole grains & cereals
+    'barley cooked', 'millet cooked', 'buckwheat cooked',
+    'whole wheat pasta', 'rice cereal infant', 'oat cereal infant'
   ]
 };
 
@@ -54,11 +84,19 @@ async function searchFood(query) {
   try {
     requestCount++;
     const response = await fetch(`${BASE_URL}/foods/search?${params}`);
-    if (!response.ok) return [];
+    if (!response.ok) {
+      console.log(`  ❌ API error ${response.status} for "${query}"`);
+      return [];
+    }
     
     const data = await response.json();
+    if (!data.foods || data.foods.length === 0) {
+      console.log(`  ⚠️  No results for "${query}"`);
+      return [];
+    }
     return data.foods?.slice(0, 1) || [];
-  } catch {
+  } catch (error) {
+    console.log(`  ❌ Error searching "${query}":`, error.message);
     return [];
   }
 }
@@ -69,9 +107,13 @@ async function getFoodDetails(fdcId) {
   try {
     requestCount++;
     const response = await fetch(`${BASE_URL}/food/${fdcId}?api_key=${API_KEY}&format=full`);
-    if (!response.ok) return null;
+    if (!response.ok) {
+      console.log(`    ❌ Details error ${response.status} for FDC ${fdcId}`);
+      return null;
+    }
     return await response.json();
-  } catch {
+  } catch (error) {
+    console.log(`    ❌ Details fetch error for FDC ${fdcId}:`, error.message);
     return null;
   }
 }
@@ -134,9 +176,10 @@ async function main() {
         
         allFoods.push(processedFood);
         
+        const calories = processedFood.nutrients.calories?.amount || 0;
         const iron = processedFood.nutrients.iron?.amount || 0;
         const protein = processedFood.nutrients.protein?.amount || 0;
-        console.log(`  ✅ Iron: ${iron}mg, Protein: ${protein}g`);
+        console.log(`  ✅ ${calories}kcal, Iron: ${iron}mg, Protein: ${protein}g`);
       }
     }
     

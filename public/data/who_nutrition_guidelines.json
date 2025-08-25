@@ -1,0 +1,234 @@
+{
+  "metadata": {
+    "source": "WHO/FAO Complementary Feeding Guidelines 2023",
+    "reference": "https://www.who.int/publications/i/item/9789240081864",
+    "lastUpdated": "2025-01-31",
+    "ageRange": "6-23 months",
+    "description": "Daily nutritional requirements for complementary feeding based on WHO/FAO guidelines"
+  },
+  "ageGroups": {
+    "6-12_months": {
+      "label": "6-12 months",
+      "complementaryFoodEnergyNeeds": {
+        "breastfed": {
+          "value": 200,
+          "unit": "kcal/day",
+          "note": "At 6-8 months, increases with age"
+        },
+        "non_breastfed": {
+          "value": 600,
+          "unit": "kcal/day",
+          "note": "Includes milk and complementary foods"
+        }
+      },
+      "dailyRequirements": {
+        "iron": {
+          "value": 11,
+          "unit": "mg/day",
+          "criticalPeriod": true,
+          "note": "Critical for brain development and preventing anemia"
+        },
+        "zinc": {
+          "value": 3,
+          "unit": "mg/day",
+          "note": "Essential for immune function and growth"
+        },
+        "vitaminA": {
+          "value": 400,
+          "unit": "μg RAE/day",
+          "note": "Retinol Activity Equivalents for vision and immune system"
+        },
+        "calcium": {
+          "value": 270,
+          "unit": "mg/day",
+          "note": "For bone and teeth development"
+        },
+        "vitaminD": {
+          "value": 10,
+          "unit": "μg/day",
+          "note": "For calcium absorption and bone health"
+        },
+        "vitaminC": {
+          "value": 30,
+          "unit": "mg/day",
+          "note": "Enhances iron absorption, immune function"
+        },
+        "folate": {
+          "value": 80,
+          "unit": "μg/day",
+          "note": "For cell division and DNA synthesis"
+        },
+        "vitaminB12": {
+          "value": 0.7,
+          "unit": "μg/day",
+          "note": "Critical for brain development"
+        },
+        "protein": {
+          "value": 1.1,
+          "unit": "g/kg body weight/day",
+          "note": "Varies by individual weight"
+        }
+      },
+      "feedingFrequency": {
+        "meals": "2-3 times per day",
+        "snacks": "1-2 additional snacks as required",
+        "note": "Start with 2 meals at 6 months, increase to 3 by 8 months"
+      }
+    },
+    "12-24_months": {
+      "label": "12-24 months", 
+      "complementaryFoodEnergyNeeds": {
+        "breastfed": {
+          "value": 550,
+          "unit": "kcal/day",
+          "note": "12-23 months from complementary foods"
+        },
+        "non_breastfed": {
+          "value": 700,
+          "unit": "kcal/day",
+          "note": "Includes milk and complementary foods"
+        }
+      },
+      "dailyRequirements": {
+        "iron": {
+          "value": 7,
+          "unit": "mg/day",
+          "criticalPeriod": true,
+          "note": "Continued importance for growth and development"
+        },
+        "zinc": {
+          "value": 3,
+          "unit": "mg/day",
+          "note": "Maintains immune function and supports growth"
+        },
+        "vitaminA": {
+          "value": 400,
+          "unit": "μg RAE/day",
+          "note": "Continues to support vision and immune system"
+        },
+        "calcium": {
+          "value": 500,
+          "unit": "mg/day",
+          "note": "Increased needs for growing bones and teeth"
+        },
+        "vitaminD": {
+          "value": 15,
+          "unit": "μg/day",
+          "note": "Increased requirement for optimal bone health"
+        },
+        "vitaminC": {
+          "value": 30,
+          "unit": "mg/day",
+          "note": "Continues to enhance iron absorption"
+        },
+        "folate": {
+          "value": 120,
+          "unit": "μg/day",
+          "note": "Increased needs for rapid growth"
+        },
+        "vitaminB12": {
+          "value": 0.9,
+          "unit": "μg/day",
+          "note": "Increased needs for brain development"
+        },
+        "protein": {
+          "value": 1.0,
+          "unit": "g/kg body weight/day",
+          "note": "Slightly reduced per kg as growth rate slows"
+        }
+      },
+      "feedingFrequency": {
+        "meals": "3-4 times per day",
+        "snacks": "1-2 additional snacks as required",
+        "note": "Regular meal pattern established"
+      }
+    }
+  },
+  "foodGroupRequirements": {
+    "description": "WHO recommendations for daily food group consumption",
+    "dailyRequirements": {
+      "animalSourceFoods": {
+        "frequency": "daily",
+        "examples": ["meat", "fish", "eggs", "dairy"],
+        "importance": "High-quality protein, iron, zinc, vitamin B12",
+        "note": "Should be consumed every day"
+      },
+      "fruitsAndVegetables": {
+        "frequency": "daily", 
+        "examples": ["dark leafy greens", "orange vegetables", "fruits"],
+        "importance": "Vitamin A, vitamin C, folate, fiber",
+        "note": "Should be consumed every day"
+      },
+      "stapleGrains": {
+        "frequency": "daily",
+        "examples": ["rice", "wheat", "oats", "quinoa"],
+        "importance": "Energy, B vitamins, some protein",
+        "note": "Should not dominate the diet"
+      },
+      "legumesNutsSeeds": {
+        "frequency": "frequently",
+        "examples": ["lentils", "beans", "peas", "ground nuts"],
+        "importance": "Protein, iron, zinc, fiber",
+        "note": "Especially important when animal foods are limited"
+      }
+    }
+  },
+  "nutritionQualityIndicators": {
+    "description": "Metrics for assessing nutritional adequacy",
+    "diversityScore": {
+      "minimumFoodGroups": 4,
+      "totalFoodGroups": 7,
+      "calculation": "Number of food groups consumed / Total food groups * 100"
+    },
+    "whoComplianceScore": {
+      "factors": [
+        "Daily animal source foods consumed",
+        "Daily fruits and vegetables consumed", 
+        "Age-appropriate feeding frequency met",
+        "Key nutrient requirements met (iron, zinc, vitamin A)",
+        "Appropriate energy intake from complementary foods"
+      ],
+      "maxScore": 100,
+      "calculation": "Sum of factor scores / 5"
+    },
+    "riskAlerts": {
+      "ironDeficiency": {
+        "threshold": "< 50% daily requirement",
+        "severity": "high",
+        "message": "Iron intake too low - add meat, fish, or fortified foods"
+      },
+      "lowDiversity": {
+        "threshold": "< 3 food groups per day",
+        "severity": "medium", 
+        "message": "Increase food variety - try different food groups"
+      },
+      "excessEnergy": {
+        "threshold": "> 150% daily energy needs",
+        "severity": "medium",
+        "message": "Total energy intake may be too high"
+      },
+      "inadequateAnimalFoods": {
+        "threshold": "< 1 serving of animal foods per day",
+        "severity": "high",
+        "message": "Add meat, fish, eggs, or dairy for essential nutrients"
+      }
+    }
+  },
+  "developmentalConsiderations": {
+    "6-8_months": {
+      "textureProgression": "Start with smooth purees, gradually introduce soft lumps",
+      "selfFeeding": "Allow finger foods, encourage self-feeding attempts",
+      "newFoodIntroduction": "Introduce one new food every 3-5 days"
+    },
+    "9-11_months": {
+      "textureProgression": "Chopped foods, soft finger foods",
+      "selfFeeding": "Encourage independent eating with supervision", 
+      "skillDevelopment": "Pincer grasp development for small foods"
+    },
+    "12-24_months": {
+      "textureProgression": "Family foods with appropriate modifications",
+      "selfFeeding": "Independent eating with utensils",
+      "mealPatterns": "Regular family meal times and routines"
+    }
+  }
+}
