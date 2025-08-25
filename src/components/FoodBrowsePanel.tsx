@@ -61,6 +61,11 @@ export function FoodBrowsePanel({
   const [searchQuery, setSearchQuery] = useState('');
   const [isCustomServing, setIsCustomServing] = useState(false);
   const [customServingValue, setCustomServingValue] = useState('');
+  const [searchFilters, setSearchFilters] = useState({
+    nutrientFocus: 'all', // 'iron', 'protein', 'calcium', 'all'
+    textureType: 'all', // 'smooth', 'chunky', 'finger', 'all'
+    allergenFree: 'all' // 'dairy-free', 'gluten-free', 'all'
+  });
 
   const handleServingChange = (value: string) => {
     if (value === 'custom') {
@@ -80,7 +85,7 @@ export function FoodBrowsePanel({
     }
   };
 
-  // Filter foods based on search query and category
+  // Enhanced smart filtering logic
   const filteredFoods = useMemo(() => {
     let result = foods;
     
@@ -89,18 +94,73 @@ export function FoodBrowsePanel({
       result = result.filter(food => food.category === activeCategory);
     }
     
-    // Then filter by search query
+    // Filter by search query with enhanced matching
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       result = result.filter(food => 
         food.name.toLowerCase().includes(query) ||
         food.shortName?.toLowerCase().includes(query) ||
-        food.category.toLowerCase().includes(query)
+        food.category.toLowerCase().includes(query) ||
+        // Enhanced nutrient-based search
+        (query.includes('iron') && (food.nutrients.iron?.amount ?? 0) > 1) ||
+        (query.includes('protein') && (food.nutrients.protein?.amount ?? 0) > 3) ||
+        (query.includes('calcium') && (food.nutrients.calcium?.amount ?? 0) > 10) ||
+        // Texture-based search
+        (query.includes('smooth') && ['banana', 'avocado', 'sweet potato'].some(smooth => food.name.toLowerCase().includes(smooth))) ||
+        (query.includes('finger') && ['cheese', 'crackers', 'blueberries'].some(finger => food.name.toLowerCase().includes(finger)))
       );
     }
     
+    // Apply nutrient focus filter
+    if (searchFilters.nutrientFocus !== 'all') {
+      result = result.filter(food => {
+        switch (searchFilters.nutrientFocus) {
+          case 'iron':
+            return (food.nutrients.iron?.amount ?? 0) > 1;
+          case 'protein':
+            return (food.nutrients.protein?.amount ?? 0) > 3;
+          case 'calcium':
+            return (food.nutrients.calcium?.amount ?? 0) > 10;
+          default:
+            return true;
+        }
+      });
+    }
+    
+    // Apply texture type filter (simplified categorization)
+    if (searchFilters.textureType !== 'all') {
+      result = result.filter(food => {
+        const foodName = food.name.toLowerCase();
+        switch (searchFilters.textureType) {
+          case 'smooth':
+            return ['banana', 'avocado', 'sweet potato', 'applesauce', 'yogurt'].some(smooth => foodName.includes(smooth));
+          case 'finger':
+            return ['cheese', 'crackers', 'blueberries', 'cheerios', 'toast'].some(finger => foodName.includes(finger));
+          case 'chunky':
+            return ['chicken', 'beef', 'broccoli', 'carrots', 'rice'].some(chunky => foodName.includes(chunky));
+          default:
+            return true;
+        }
+      });
+    }
+    
+    // Apply allergen-free filter (simplified)
+    if (searchFilters.allergenFree !== 'all') {
+      result = result.filter(food => {
+        const foodName = food.name.toLowerCase();
+        switch (searchFilters.allergenFree) {
+          case 'dairy-free':
+            return !['milk', 'cheese', 'yogurt', 'butter'].some(dairy => foodName.includes(dairy));
+          case 'gluten-free':
+            return !['wheat', 'bread', 'crackers', 'cereal'].some(gluten => foodName.includes(gluten));
+          default:
+            return true;
+        }
+      });
+    }
+    
     return result;
-  }, [foods, activeCategory, searchQuery]);
+  }, [foods, activeCategory, searchQuery, searchFilters]);
 
   return (
     <div className="bg-gradient-to-b from-white/90 to-white/70 dark:from-slate-800/90 dark:to-slate-900/70 backdrop-blur-sm rounded-2xl shadow-2xl border-2 border-white/50 dark:border-slate-600/50 h-full transition-colors duration-300">
@@ -137,6 +197,81 @@ export function FoodBrowsePanel({
           </div>
         </div>
         
+        {/* Smart Search Filters */}
+        <div className="mb-4">
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-xs font-semibold text-gray-600 dark:text-slate-400 transition-colors duration-300">🎯 Smart Filters:</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            {/* Nutrient Focus Filter */}
+            <select
+              value={searchFilters.nutrientFocus}
+              onChange={(e) => setSearchFilters(prev => ({ ...prev, nutrientFocus: e.target.value }))}
+              className="px-2 py-1 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-xs font-medium text-gray-900 dark:text-slate-100 focus:border-indigo-400 dark:focus:border-indigo-400 focus:outline-none transition-colors duration-200"
+            >
+              <option value="all">All Nutrients</option>
+              <option value="iron">🩸 High Iron</option>
+              <option value="protein">💪 High Protein</option>
+              <option value="calcium">🦴 High Calcium</option>
+            </select>
+            
+            {/* Texture Type Filter */}
+            <select
+              value={searchFilters.textureType}
+              onChange={(e) => setSearchFilters(prev => ({ ...prev, textureType: e.target.value }))}
+              className="px-2 py-1 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-xs font-medium text-gray-900 dark:text-slate-100 focus:border-indigo-400 dark:focus:border-indigo-400 focus:outline-none transition-colors duration-200"
+            >
+              <option value="all">All Textures</option>
+              <option value="smooth">🥄 Smooth/Pureed</option>
+              <option value="finger">👶 Finger Foods</option>
+              <option value="chunky">🍽️ Chunky/Textured</option>
+            </select>
+            
+            {/* Allergen-Free Filter */}
+            <select
+              value={searchFilters.allergenFree}
+              onChange={(e) => setSearchFilters(prev => ({ ...prev, allergenFree: e.target.value }))}
+              className="px-2 py-1 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-xs font-medium text-gray-900 dark:text-slate-100 focus:border-indigo-400 dark:focus:border-indigo-400 focus:outline-none transition-colors duration-200"
+            >
+              <option value="all">All Foods</option>
+              <option value="dairy-free">🚫🥛 Dairy-Free</option>
+              <option value="gluten-free">🚫🌾 Gluten-Free</option>
+            </select>
+          </div>
+          
+          {/* Active Filters Display */}
+          {(searchFilters.nutrientFocus !== 'all' || searchFilters.textureType !== 'all' || searchFilters.allergenFree !== 'all') && (
+            <div className="flex items-center gap-2 mt-2 flex-wrap">
+              <span className="text-xs text-gray-500 dark:text-slate-500">Active:</span>
+              {searchFilters.nutrientFocus !== 'all' && (
+                <span className="px-2 py-1 bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 text-xs rounded-lg font-medium">
+                  {searchFilters.nutrientFocus === 'iron' ? '🩸 High Iron' : 
+                   searchFilters.nutrientFocus === 'protein' ? '💪 High Protein' : 
+                   '🦴 High Calcium'}
+                </span>
+              )}
+              {searchFilters.textureType !== 'all' && (
+                <span className="px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 text-xs rounded-lg font-medium">
+                  {searchFilters.textureType === 'smooth' ? '🥄 Smooth' : 
+                   searchFilters.textureType === 'finger' ? '👶 Finger Foods' : 
+                   '🍽️ Chunky'}
+                </span>
+              )}
+              {searchFilters.allergenFree !== 'all' && (
+                <span className="px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 text-xs rounded-lg font-medium">
+                  {searchFilters.allergenFree === 'dairy-free' ? '🚫🥛 Dairy-Free' : '🚫🌾 Gluten-Free'}
+                </span>
+              )}
+              <button
+                onClick={() => setSearchFilters({ nutrientFocus: 'all', textureType: 'all', allergenFree: 'all' })}
+                className="px-2 py-1 bg-gray-100 dark:bg-slate-600 text-gray-600 dark:text-slate-300 text-xs rounded-lg font-medium hover:bg-gray-200 dark:hover:bg-slate-500 transition-colors"
+              >
+                Clear All
+              </button>
+            </div>
+          )}
+        </div>
+        
         {/* Serving Size Dropdown */}
         <div className="mb-4">
           <div className="flex items-center gap-3">
@@ -151,10 +286,10 @@ export function FoodBrowsePanel({
             >
               {servingOptions.map(grams => (
                 <option key={grams} value={grams}>
-                  {grams}g {grams === 5 ? '(taste)' : grams === 10 ? '(small)' : grams === 15 ? '(medium)' : '(large)'}
+                  {grams}g • {grams === 5 ? '🥄 Tiny taste (1 tsp)' : grams === 10 ? '🍓 Small bite (2 tsp)' : grams === 15 ? '🫐 Medium portion (1 tbsp)' : '🍇 Large serving (4 tsp)'}
                 </option>
               ))}
-              <option value="custom">Custom amount</option>
+              <option value="custom">🎯 Custom amount</option>
             </select>
           </div>
           
@@ -175,8 +310,73 @@ export function FoodBrowsePanel({
               </div>
             </div>
           )}
+          
+          {/* Visual Portion Guide */}
+          {!isCustomServing && (
+            <div className="mt-2 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-slate-700/50 dark:to-slate-600/50 rounded-xl border border-blue-200 dark:border-slate-600">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-sm">👶</span>
+                <span className="text-xs font-semibold text-blue-800 dark:text-blue-300">Visual Portion Guide</span>
+              </div>
+              <div className="text-xs text-blue-700 dark:text-blue-200 space-y-1">
+                {selectedServingSize === 5 && (
+                  <div>🥄 <strong>Tiny taste (5g)</strong> • Perfect for first tries • About 1 teaspoon • Size of baby's fingertip</div>
+                )}
+                {selectedServingSize === 10 && (
+                  <div>🍓 <strong>Small bite (10g)</strong> • Early feeding • About 2 teaspoons • Size of a grape</div>
+                )}
+                {selectedServingSize === 15 && (
+                  <div>🫐 <strong>Medium portion (15g)</strong> • Regular serving • About 1 tablespoon • Size of a large berry</div>
+                )}
+                {selectedServingSize === 20 && (
+                  <div>🍇 <strong>Large serving (20g)</strong> • For hungry babies • About 4 teaspoons • Size of a walnut</div>
+                )}
+                {!servingOptions.includes(selectedServingSize) && (
+                  <div>🎯 <strong>Custom amount ({selectedServingSize}g)</strong> • Your personalized serving size</div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
         
+        {/* Search Results Info */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold text-gray-700 dark:text-slate-300">
+              {filteredFoods.length} food{filteredFoods.length !== 1 ? 's' : ''} found
+            </span>
+            {(searchQuery || searchFilters.nutrientFocus !== 'all' || searchFilters.textureType !== 'all' || searchFilters.allergenFree !== 'all') && (
+              <span className="text-xs text-gray-500 dark:text-slate-500">
+                (filtered from {foods.length})
+              </span>
+            )}
+          </div>
+          {filteredFoods.length === 0 && (
+            <button
+              onClick={() => {
+                setSearchQuery('');
+                setSearchFilters({ nutrientFocus: 'all', textureType: 'all', allergenFree: 'all' });
+                onCategoryChange('all');
+              }}
+              className="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 font-medium transition-colors"
+            >
+              Clear all filters
+            </button>
+          )}
+        </div>
+
+        {/* Search Hints */}
+        {searchQuery.trim() && (
+          <div className="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700 rounded-xl">
+            <div className="text-xs text-blue-800 dark:text-blue-300 font-medium mb-1">💡 Search Tips:</div>
+            <div className="text-xs text-blue-600 dark:text-blue-400 space-y-1">
+              <div>• Try "iron", "protein", or "calcium" to find nutrient-rich foods</div>
+              <div>• Use "smooth", "finger", or "chunky" to find foods by texture</div>
+              <div>• Search by category like "fruit", "vegetable", "protein"</div>
+            </div>
+          </div>
+        )}
+
         {/* Category Power-Up Tabs */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
           {categories.map(category => {

@@ -13,6 +13,7 @@ import { ChildProfile } from '../types/child';
 import { MealFood } from '../utils/whoCompliance';
 import { AutoChefSuggestion } from '../utils/autoChef';
 import { DarkModeToggle } from './DarkModeToggle';
+import { QuickStartTemplates } from './QuickStartTemplates';
 
 // USDA standard serving sizes in grams
 const SERVING_OPTIONS = [5, 10, 15, 20] as const;
@@ -30,6 +31,7 @@ export function SimpleMealBuilder() {
   const [activeChildProfile, setActiveChildProfile] = useState<ChildProfile | null>(null);
   const [isChildProfileModalOpen, setIsChildProfileModalOpen] = useState(false);
   const [isAutoChefModalOpen, setIsAutoChefModalOpen] = useState(false);
+  const [isQuickStartTemplatesOpen, setIsQuickStartTemplatesOpen] = useState(false);
 
   // Load child profiles from localStorage on mount
   useEffect(() => {
@@ -167,6 +169,20 @@ export function SimpleMealBuilder() {
     setIsChildProfileModalOpen(true);
   }, []);
 
+  const handleApplyTemplate = useCallback((templateFoods: MealFood[]) => {
+    console.log('Applying meal template with', templateFoods.length, 'foods');
+    
+    // Clear current meal first
+    setMealFoods([]);
+    
+    // Add template foods with staggered animation
+    templateFoods.forEach((mealFood, index) => {
+      setTimeout(() => {
+        setMealFoods(prev => [...prev, mealFood]);
+      }, index * 150); // 150ms delay between each food
+    });
+  }, []);
+
   const handleApplySuggestion = useCallback((suggestion: AutoChefSuggestion) => {
     console.log('Applying auto-chef suggestion:', suggestion.name);
     
@@ -235,13 +251,20 @@ export function SimpleMealBuilder() {
             <div className="flex items-center space-x-4">
               <DarkModeToggle />
               <button
-                onClick={() => setIsAutoChefModalOpen(true)}
-                className="inline-flex items-center px-5 py-2.5 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white text-sm font-semibold rounded-xl shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+                onClick={() => setIsQuickStartTemplatesOpen(true)}
+                className="inline-flex items-center px-4 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white text-sm font-semibold rounded-xl shadow-md hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 dark:focus:ring-offset-slate-800 transform hover:scale-105"
               >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-                Auto-Chef
+                <span className="text-sm mr-2">🚀</span>
+                Quick-Start
+              </button>
+              <button
+                onClick={() => setIsAutoChefModalOpen(true)}
+                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 active:from-emerald-700 active:to-green-700 text-white text-sm font-black rounded-xl shadow-lg hover:shadow-xl active:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 dark:focus:ring-offset-slate-800 transform hover:scale-105 active:scale-95 relative overflow-hidden group"
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
+                <span className="text-lg mr-2 relative z-10">⚡</span>
+                <span className="relative z-10">Auto-Chef</span>
+                <div className="ml-2 px-2 py-1 bg-white/20 rounded-lg text-xs font-bold relative z-10 animate-pulse">AI</div>
               </button>
               <button
                 onClick={() => setIsAddFoodModalOpen(true)}
@@ -348,6 +371,14 @@ export function SimpleMealBuilder() {
         availableFoods={availableFoods}
         onAddFood={handleAddFood}
         onApplySuggestion={handleApplySuggestion}
+      />
+
+      {/* Quick-Start Templates Modal */}
+      <QuickStartTemplates
+        isOpen={isQuickStartTemplatesOpen}
+        onClose={() => setIsQuickStartTemplatesOpen(false)}
+        onApplyTemplate={handleApplyTemplate}
+        childProfile={activeChildProfile}
       />
     </div>
   );

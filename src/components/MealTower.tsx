@@ -257,17 +257,42 @@ function EmptyTower() {
   return (
     <div className="flex flex-col items-center justify-center min-h-[400px] p-8">
       <div className="text-8xl mb-6 animate-bounce">🍽️</div>
-      <h3 className="text-2xl font-black text-gray-800 mb-3">Ready to Build!</h3>
-      <p className="text-sm text-center max-w-md mb-6 text-gray-600 leading-relaxed">
-        Click the <span className="bg-emerald-500 text-white px-2 py-1 rounded-lg font-bold text-xs">+</span> button next to foods to add them to your meal tower
+      <h3 className="text-2xl font-black text-gray-800 dark:text-slate-100 mb-3 transition-colors duration-300">Ready to Build!</h3>
+      <p className="text-sm text-center max-w-md mb-6 text-gray-600 dark:text-slate-400 leading-relaxed transition-colors duration-300">
+        Get started by building your baby's perfect meal
       </p>
-      <div className="bg-gradient-to-r from-orange-50 to-yellow-50 border-2 border-orange-200 px-6 py-4 rounded-2xl shadow-lg max-w-md">
+      
+      {/* Auto-Chef Discovery Card */}
+      <div className="bg-gradient-to-r from-emerald-50 via-green-50 to-emerald-50 dark:from-emerald-900/20 dark:via-green-900/20 dark:to-emerald-900/20 border-2 border-emerald-200 dark:border-emerald-700 px-6 py-4 rounded-2xl shadow-lg max-w-md mb-4 transition-colors duration-300">
+        <div className="flex items-center gap-3 text-sm mb-3">
+          <div className="w-10 h-10 bg-gradient-to-r from-emerald-500 to-green-500 rounded-xl flex items-center justify-center shadow-md">
+            <span className="text-white text-lg">⚡</span>
+          </div>
+          <div>
+            <div className="text-emerald-800 dark:text-emerald-300 font-black transition-colors duration-300">🚀 Try Auto-Chef!</div>
+            <div className="text-emerald-700 dark:text-emerald-400 text-xs font-medium transition-colors duration-300">Get instant WHO-compliant meal suggestions</div>
+          </div>
+        </div>
+        <p className="text-emerald-600 dark:text-emerald-400 text-xs leading-relaxed mb-3 transition-colors duration-300">
+          Let our AI create a balanced meal based on your child's age and nutritional needs. Click the green <strong>Auto-Chef</strong> button in the header!
+        </p>
+        <div className="text-center">
+          <div className="inline-flex items-center gap-2 bg-emerald-500 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md animate-pulse">
+            <span>⚡</span>
+            Look for Auto-Chef above
+            <span>⬆️</span>
+          </div>
+        </div>
+      </div>
+      
+      {/* Manual Building Tip */}
+      <div className="bg-gradient-to-r from-orange-50 to-yellow-50 dark:from-orange-900/20 dark:to-yellow-900/20 border-2 border-orange-200 dark:border-orange-700 px-6 py-4 rounded-2xl shadow-lg max-w-md transition-colors duration-300">
         <div className="flex items-center gap-3 text-sm">
           <div className="w-8 h-8 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-xl flex items-center justify-center shadow-sm">
-            <span className="text-white text-xs">💡</span>
+            <span className="text-white text-xs">🔨</span>
           </div>
-          <div className="text-orange-700 font-medium leading-relaxed">
-            Add foods from different categories for balanced nutrition and higher WHO compliance
+          <div className="text-orange-700 dark:text-orange-400 font-medium leading-relaxed transition-colors duration-300">
+            <strong>Or build manually:</strong> Click <span className="bg-emerald-500 text-white px-2 py-1 rounded-lg font-bold text-xs">+</span> next to foods to add them
           </div>
         </div>
       </div>
