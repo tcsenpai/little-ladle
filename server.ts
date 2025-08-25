@@ -1,6 +1,6 @@
 import { serve } from "bun";
 import { existsSync, mkdirSync } from "fs";
-import path from "path";
+import * as path from "path";
 
 const PORT = process.env.PORT || 3000;
 const DATA_DIR = "/app/data";
