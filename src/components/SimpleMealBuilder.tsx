@@ -15,29 +15,36 @@ import { AutoChefSuggestion } from '../utils/autoChef';
 import { DarkModeToggle } from './DarkModeToggle';
 import { QuickStartTemplates } from './QuickStartTemplates';
 import { MobileDrawer } from './MobileDrawer';
+import { ErrorBoundary, MealBuilderErrorFallback } from './ErrorBoundary';
 
-// USDA standard serving sizes in grams
-const SERVING_OPTIONS = [5, 10, 15, 20] as const;
+// Import custom hooks
+import { useMealManagement } from '../hooks/useMealManagement';
+import { useModalManager } from '../hooks/useModalManager';
+import { useServingSize } from '../hooks/useServingSize';
+import { useMobileResponsive } from '../hooks/useMobileResponsive';
+
+// Import constants
+import { MEAL_CONFIG, STORAGE_KEYS, ServingSize } from '../constants/config';
 
 export function SimpleMealBuilder() {
-  const [mealFoods, setMealFoods] = useState<MealFood[]>([]);
+  // Use custom hooks for better organization
+  const { mealFoods, addFood, removeFood, updateServingSize, clearMeal } = useMealManagement();
+  const { activeModal, openModal, closeModal, isModalOpen } = useModalManager();
+  const { selectedSize, getCurrentSize, selectServingSize, servingOptions } = useServingSize();
+  const { isMobile, isMobileDrawerOpen, openMobileDrawer, closeMobileDrawer } = useMobileResponsive();
+
+  // Remaining state
   const [selectedFood, setSelectedFood] = useState<Food | null>(null);
   const [activeCategory, setActiveCategory] = useState<Food['category'] | 'all'>('all');
-  const [selectedServingSize, setSelectedServingSize] = useState<number>(10); // Default 10g
-  const [isAddFoodModalOpen, setIsAddFoodModalOpen] = useState(false);
   const [availableFoods, setAvailableFoods] = useState<Food[]>(foods); // Dynamic food list
   
   // Child profile state - supporting multiple children
   const [childProfiles, setChildProfiles] = useState<ChildProfile[]>([]);
   const [activeChildProfile, setActiveChildProfile] = useState<ChildProfile | null>(null);
-  const [isChildProfileModalOpen, setIsChildProfileModalOpen] = useState(false);
-  const [isAutoChefModalOpen, setIsAutoChefModalOpen] = useState(false);
-  const [isQuickStartTemplatesOpen, setIsQuickStartTemplatesOpen] = useState(false);
-  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
 
   // Load child profiles from localStorage on mount
   useEffect(() => {
-    const savedProfiles = localStorage.getItem('pappobot-child-profiles');
+    const savedProfiles = localStorage.getItem(STORAGE_KEYS.CHILD_PROFILE);
     const savedActiveId = localStorage.getItem('pappobot-active-child-id');
     
     if (savedProfiles) {
@@ -72,14 +79,8 @@ export function SimpleMealBuilder() {
   };
 
   const handleAddFood = useCallback((food: Food) => {
-    const newMealFood: MealFood = {
-      id: `meal-${food.fdcId}-${Date.now()}`,
-      food: food,
-      servingGrams: selectedServingSize,
-      addedAt: Date.now()
-    };
-    
-    console.log('Adding food to meal:', food.name, 'with serving size:', selectedServingSize, 'g');
+    const servingSize = getCurrentSize();
+    console.log('Adding food to meal:', food.name, 'with serving size:', servingSize, 'g');
     
     // Add satisfying feedback animation
     const button = document.querySelector(`[data-food-id="${food.fdcId}"] .add-food-btn`);
@@ -90,8 +91,8 @@ export function SimpleMealBuilder() {
       }, 600);
     }
     
-    setMealFoods(prev => [newMealFood, ...prev]); // Add to top of tower with animation
-  }, [selectedServingSize]);
+    addFood(food, servingSize);
+  }, [addFood, getCurrentSize]);
 
   const handleRemoveFood = useCallback((foodId: string) => {
     console.log('Removing food from meal:', foodId);
@@ -101,23 +102,17 @@ export function SimpleMealBuilder() {
     if (foodElement) {
       foodElement.classList.add('animate-fadeOut');
       setTimeout(() => {
-        setMealFoods(prev => prev.filter(mealFood => mealFood.id !== foodId));
+        removeFood(foodId);
       }, 200); // Match fadeOut animation duration
     } else {
-      setMealFoods(prev => prev.filter(mealFood => mealFood.id !== foodId));
+      removeFood(foodId);
     }
-  }, []);
+  }, [removeFood]);
 
   const handleUpdateServing = useCallback((foodId: string, newServingGrams: number) => {
     console.log('Updating serving for:', foodId, 'to:', newServingGrams, 'g');
-    setMealFoods(prev => 
-      prev.map(mealFood => 
-        mealFood.id === foodId 
-          ? { ...mealFood, servingGrams: newServingGrams }
-          : mealFood
-      )
-    );
-  }, []);
+    updateServingSize(foodId, newServingGrams);
+  }, [updateServingSize]);
 
   const handleFoodInfo = useCallback((food: Food) => {
     console.log('Showing info for:', food.name);
@@ -125,15 +120,15 @@ export function SimpleMealBuilder() {
   }, []);
 
   const handleClearMeal = useCallback(() => {
-    setMealFoods([]);
-  }, []);
+    clearMeal();
+  }, [clearMeal]);
 
   const handleAddNewFood = useCallback((food: Food) => {
     // Add to the dynamic food list
     setAvailableFoods(prev => [...prev, food]);
     console.log('Added new food to database:', food.name);
-    setIsAddFoodModalOpen(false);
-  }, []);
+    closeModal();
+  }, [closeModal]);
 
   const handleSaveChildProfile = useCallback((profile: ChildProfile) => {
     setChildProfiles(prev => {
@@ -164,40 +159,32 @@ export function SimpleMealBuilder() {
   }, []);
 
   const handleEditChildProfile = useCallback(() => {
-    setIsChildProfileModalOpen(true);
+    openModal('childProfile');
   }, []);
 
   const handleCreateChildProfile = useCallback(() => {
-    setIsChildProfileModalOpen(true);
+    openModal('childProfile');
   }, []);
 
   const handleApplyTemplate = useCallback((templateFoods: MealFood[]) => {
     console.log('Applying meal template with', templateFoods.length, 'foods');
     
     // Clear current meal first
-    setMealFoods([]);
+    clearMeal();
     
     // Add template foods with staggered animation
     templateFoods.forEach((mealFood, index) => {
       setTimeout(() => {
-        setMealFoods(prev => [...prev, mealFood]);
+        addFood(mealFood.food, mealFood.servingGrams);
       }, index * 150); // 150ms delay between each food
     });
-  }, []);
+  }, [clearMeal, addFood]);
 
   const handleApplySuggestion = useCallback((suggestion: AutoChefSuggestion) => {
     console.log('Applying auto-chef suggestion:', suggestion.name);
     
     // Clear current meal first (always, even if empty)
-    setMealFoods([]);
-    
-    // Create new meal foods from suggestion
-    const newMealFoods: MealFood[] = suggestion.foods.map((food, index) => ({
-      id: `suggested-${Date.now()}-${index}`,
-      food: food.food,
-      servingGrams: food.servingGrams,
-      addedAt: Date.now() + index
-    }));
+    clearMeal();
     
     // If there were existing foods, add animation delay
     if (mealFoods.length > 0) {
@@ -206,30 +193,30 @@ export function SimpleMealBuilder() {
         tower.classList.add('animate-fadeOut');
         setTimeout(() => {
           // Add foods with staggered timing for smooth effect
-          newMealFoods.forEach((mealFood, index) => {
+          suggestion.foods.forEach((food, index) => {
             setTimeout(() => {
-              setMealFoods(prev => [...prev, mealFood]);
+              addFood(food.food, food.servingGrams);
             }, index * 150); // 150ms delay between each food
           });
           tower.classList.remove('animate-fadeOut');
         }, 200);
       } else {
         // Fallback: add foods with stagger effect
-        newMealFoods.forEach((mealFood, index) => {
+        suggestion.foods.forEach((food, index) => {
           setTimeout(() => {
-            setMealFoods(prev => [...prev, mealFood]);
+            addFood(food.food, food.servingGrams);
           }, index * 100);
         });
       }
     } else {
       // No existing foods, add immediately with stagger effect
-      newMealFoods.forEach((mealFood, index) => {
+      suggestion.foods.forEach((food, index) => {
         setTimeout(() => {
-          setMealFoods(prev => [...prev, mealFood]);
+          addFood(food.food, food.servingGrams);
         }, index * 100); // Faster animation when starting from empty
       });
     }
-  }, [mealFoods.length]);
+  }, [mealFoods.length, clearMeal, addFood]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-orange-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 transition-colors duration-300">
@@ -257,7 +244,7 @@ export function SimpleMealBuilder() {
             <div className="flex items-center space-x-2 md:space-x-4">
               {/* Mobile Hamburger Menu - Only visible on mobile */}
               <button
-                onClick={() => setIsMobileDrawerOpen(true)}
+                onClick={openMobileDrawer}
                 className="md:hidden flex flex-col items-center justify-center w-10 h-10 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 rounded-xl transition-colors duration-200 space-y-1 touch-manipulation"
                 aria-label="Open mobile menu"
               >
@@ -270,7 +257,7 @@ export function SimpleMealBuilder() {
               
               {/* Quick-Start - Hidden on small screens */}
               <button
-                onClick={() => setIsQuickStartTemplatesOpen(true)}
+                onClick={() => openModal('quickStart')}
                 className="hidden sm:inline-flex items-center px-3 md:px-4 py-2 md:py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white text-xs md:text-sm font-semibold rounded-xl shadow-md hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 dark:focus:ring-offset-slate-800 transform hover:scale-105 active:scale-95 min-h-[44px] touch-manipulation"
               >
                 <span className="text-sm mr-1 md:mr-2">🚀</span>
@@ -280,7 +267,7 @@ export function SimpleMealBuilder() {
               
               {/* Auto-Chef - Primary action */}
               <button
-                onClick={() => setIsAutoChefModalOpen(true)}
+                onClick={() => openModal('autoChef')}
                 className="inline-flex items-center px-3 md:px-6 py-2.5 md:py-3 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 active:from-emerald-700 active:to-green-700 text-white text-xs md:text-sm font-black rounded-xl shadow-lg hover:shadow-xl active:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 dark:focus:ring-offset-slate-800 transform hover:scale-105 active:scale-95 relative overflow-hidden group min-h-[44px] touch-manipulation"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
@@ -292,7 +279,7 @@ export function SimpleMealBuilder() {
               
               {/* Add Food - Compact on mobile */}
               <button
-                onClick={() => setIsAddFoodModalOpen(true)}
+                onClick={() => openModal('addFood')}
                 className="inline-flex items-center px-3 md:px-5 py-2.5 bg-white dark:bg-slate-700 hover:bg-orange-50 dark:hover:bg-slate-600 text-gray-700 dark:text-slate-200 hover:text-orange-700 dark:hover:text-orange-400 text-xs md:text-sm font-semibold rounded-xl border border-orange-200 dark:border-slate-600 shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 min-h-[44px] touch-manipulation transform active:scale-95"
               >
                 <svg className="w-4 h-4 mr-1 md:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -324,33 +311,42 @@ export function SimpleMealBuilder() {
           
           {/* Food Browse Panel - Full width on mobile, left column on tablet, left sidebar on desktop */}
           <div className="md:col-span-1 xl:col-span-3 order-1">
-            <FoodBrowsePanel
-              foods={availableFoods}
-              categories={categories}
-              categoryNames={categoryNames}
-              activeCategory={activeCategory}
-              onCategoryChange={setActiveCategory}
-              onAddFood={handleAddFood}
-              onShowInfo={handleFoodInfo}
-              selectedFood={selectedFood}
-              childProfile={activeChildProfile}
-              selectedServingSize={selectedServingSize}
-              servingOptions={SERVING_OPTIONS}
-              onServingSizeChange={setSelectedServingSize}
-            />
+            <ErrorBoundary fallback={MealBuilderErrorFallback}>
+              <FoodBrowsePanel
+                foods={availableFoods}
+                categories={categories}
+                categoryNames={categoryNames}
+                activeCategory={activeCategory}
+                onCategoryChange={setActiveCategory}
+                onAddFood={handleAddFood}
+                onShowInfo={handleFoodInfo}
+                selectedFood={selectedFood}
+                childProfile={activeChildProfile}
+                selectedServingSize={selectedSize}
+                servingOptions={servingOptions}
+                onServingSizeChange={(size: number) => {
+                  const validSize = MEAL_CONFIG.SERVING_OPTIONS.includes(size as ServingSize) 
+                    ? size as ServingSize 
+                    : MEAL_CONFIG.SERVING_OPTIONS[0];
+                  selectServingSize(validSize);
+                }}
+              />
+            </ErrorBoundary>
           </div>
 
           {/* Meal Tower - Center focus on all screens */}
           <div className="md:col-span-1 xl:col-span-4 order-2 md:order-2">
-            <MealTower
-              mealFoods={mealFoods}
-              onRemoveFood={handleRemoveFood}
-              onUpdateServing={handleUpdateServing}
-              onClearMeal={handleClearMeal}
-              onShowInfo={handleFoodInfo}
-              selectedFood={selectedFood}
-              servingOptions={SERVING_OPTIONS}
-            />
+            <ErrorBoundary fallback={MealBuilderErrorFallback}>
+              <MealTower
+                mealFoods={mealFoods}
+                onRemoveFood={handleRemoveFood}
+                onUpdateServing={handleUpdateServing}
+                onClearMeal={handleClearMeal}
+                onShowInfo={handleFoodInfo}
+                selectedFood={selectedFood}
+                servingOptions={servingOptions}
+              />
+            </ErrorBoundary>
           </div>
 
           {/* Info and Compliance Panels - Stack vertically on mobile and tablet */}
@@ -381,23 +377,23 @@ export function SimpleMealBuilder() {
 
       {/* Add Food Modal */}
       <AddFoodModal
-        isOpen={isAddFoodModalOpen}
-        onClose={() => setIsAddFoodModalOpen(false)}
+        isOpen={isModalOpen('addFood')}
+        onClose={() => closeModal()}
         onAddFood={handleAddNewFood}
       />
 
       {/* Child Profile Modal */}
       <ChildProfileModal
-        isOpen={isChildProfileModalOpen}
-        onClose={() => setIsChildProfileModalOpen(false)}
+        isOpen={isModalOpen('childProfile')}
+        onClose={() => closeModal()}
         onSave={handleSaveChildProfile}
         existingProfile={activeChildProfile}
       />
 
       {/* Auto-Chef Modal */}
       <AutoChefModal
-        isOpen={isAutoChefModalOpen}
-        onClose={() => setIsAutoChefModalOpen(false)}
+        isOpen={isModalOpen('autoChef')}
+        onClose={() => closeModal()}
         mealFoods={mealFoods}
         childProfile={activeChildProfile}
         availableFoods={availableFoods}
@@ -407,8 +403,8 @@ export function SimpleMealBuilder() {
 
       {/* Quick-Start Templates Modal */}
       <QuickStartTemplates
-        isOpen={isQuickStartTemplatesOpen}
-        onClose={() => setIsQuickStartTemplatesOpen(false)}
+        isOpen={isModalOpen('quickStart')}
+        onClose={() => closeModal()}
         onApplyTemplate={handleApplyTemplate}
         childProfile={activeChildProfile}
       />
@@ -416,13 +412,13 @@ export function SimpleMealBuilder() {
       {/* Mobile Navigation Drawer */}
       <MobileDrawer
         isOpen={isMobileDrawerOpen}
-        onClose={() => setIsMobileDrawerOpen(false)}
-        onQuickStart={() => setIsQuickStartTemplatesOpen(true)}
-        onAutoChef={() => setIsAutoChefModalOpen(true)}
-        onAddFood={() => setIsAddFoodModalOpen(true)}
+        onClose={closeMobileDrawer}
+        onQuickStart={() => openModal('quickStart')}
+        onAutoChef={() => openModal('autoChef')}
+        onAddFood={() => openModal('addFood')}
         childProfile={activeChildProfile}
-        onCreateProfile={() => setIsChildProfileModalOpen(true)}
-        onEditProfile={() => setIsChildProfileModalOpen(true)}
+        onCreateProfile={() => openModal('childProfile')}
+        onEditProfile={() => openModal('childProfile')}
       />
     </div>
   );

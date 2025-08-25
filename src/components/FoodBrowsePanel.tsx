@@ -1,9 +1,10 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, memo, useCallback } from 'react';
 import { Food } from '../types/food';
 import { ChildProfile } from '../types/child';
 import { categoryColors } from '../data/foodData';
 import { isAgeAppropriate } from '../utils/whoCompliance';
 import { calculateAge } from '../utils/ageCalculation';
+import { MEAL_CONFIG, DEBOUNCE_DELAYS } from '../constants/config';
 
 interface FoodBrowsePanelProps {
   foods: Food[];
@@ -44,7 +45,7 @@ const ageIndicators = {
   '12+ months': { color: '#FFC107', text: '12m+' }
 } as const;
 
-export function FoodBrowsePanel({
+const FoodBrowsePanelComponent: React.FC<FoodBrowsePanelProps> = ({
   foods,
   categories,
   categoryNames,
@@ -57,7 +58,7 @@ export function FoodBrowsePanel({
   selectedServingSize,
   servingOptions,
   onServingSizeChange
-}: FoodBrowsePanelProps) {
+}) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isCustomServing, setIsCustomServing] = useState(false);
   const [customServingValue, setCustomServingValue] = useState('');
@@ -463,7 +464,18 @@ export function FoodBrowsePanel({
       </div>
     </div>
   );
-}
+};
+
+// Memoize the component for better performance
+export const FoodBrowsePanel = memo(FoodBrowsePanelComponent, (prevProps, nextProps) => {
+  return (
+    prevProps.activeCategory === nextProps.activeCategory &&
+    prevProps.selectedServingSize === nextProps.selectedServingSize &&
+    prevProps.selectedFood?.fdcId === nextProps.selectedFood?.fdcId &&
+    prevProps.childProfile?.id === nextProps.childProfile?.id &&
+    prevProps.foods.length === nextProps.foods.length
+  );
+});
 
 interface FoodBrowseItemProps {
   food: Food;
@@ -473,7 +485,7 @@ interface FoodBrowseItemProps {
   childProfile?: ChildProfile | null;
 }
 
-function FoodBrowseItem({ food, isSelected, onAddFood, onShowInfo, childProfile }: FoodBrowseItemProps) {
+const FoodBrowseItem: React.FC<FoodBrowseItemProps> = ({ food, isSelected, onAddFood, onShowInfo, childProfile }) => {
   const categoryColor = categoryColors[food.category];
   const categoryIcon = categoryIcons[food.category];
   const ageInfo = ageIndicators[food.ageGroup];
@@ -598,4 +610,4 @@ function FoodBrowseItem({ food, isSelected, onAddFood, onShowInfo, childProfile 
       </button>
     </div>
   );
-}
+};

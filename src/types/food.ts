@@ -5,6 +5,7 @@ export interface Nutrient {
 }
 
 export interface Nutrients {
+  calories?: Nutrient;
   protein?: Nutrient;
   fat?: Nutrient;
   carbs?: Nutrient;
@@ -35,6 +36,13 @@ export interface FoodBlock {
     y: number;
   };
   connections?: string[]; // IDs of connected blocks
+}
+
+export interface MealFood {
+  id: string;
+  food: Food;
+  servingGrams: number;
+  addedAt: number;
 }
 
 export type FoodCategory = Food['category'];

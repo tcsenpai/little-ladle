@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { memo, useMemo, useCallback } from 'react';
 import { Food } from '../types/food';
 import { categoryColors } from '../data/foodData';
+import { MEAL_CONFIG, NUTRITION_TARGETS } from '../constants/config';
 
 interface MealFood {
   id: string;
@@ -28,7 +29,7 @@ const categoryIcons = {
   other: '🍽️'
 } as const;
 
-export function MealTower({
+const MealTowerComponent = ({
   mealFoods,
   onRemoveFood,
   onUpdateServing,
@@ -36,18 +37,62 @@ export function MealTower({
   onShowInfo,
   selectedFood,
   servingOptions
-}: MealTowerProps) {
-  // Calculate total nutrition (USDA values are per 100g, so we multiply by servingGrams/100)
-  const totalNutrition = mealFoods.reduce((total, mealFood) => {
-    const multiplier = mealFood.servingGrams / 100; // Convert from per 100g to actual serving
-    const food = mealFood.food;
+}: MealTowerProps) => {
+  // Memoize nutrition calculation for performance
+  const totalNutrition = useMemo(() => {
+    return mealFoods.reduce((total, mealFood) => {
+      const multiplier = mealFood.servingGrams / 100; // Convert from per 100g to actual serving
+      const food = mealFood.food;
+      return {
+        calories: total.calories + ((food.nutrients.calories?.amount ?? 0) * multiplier),
+        iron: total.iron + ((food.nutrients.iron?.amount ?? 0) * multiplier),
+        protein: total.protein + ((food.nutrients.protein?.amount ?? 0) * multiplier),
+        calcium: total.calcium + ((food.nutrients.calcium?.amount ?? 0) * multiplier),
+      };
+    }, { calories: 0, iron: 0, protein: 0, calcium: 0 });
+  }, [mealFoods]);
+
+  // Memoize visible foods to prevent unnecessary recalculations
+  const { visibleFoods, hiddenCount } = useMemo(() => {
+    const visible = mealFoods.slice(0, MEAL_CONFIG.VISIBLE_TOWER_ITEMS);
+    const hidden = Math.max(0, mealFoods.length - MEAL_CONFIG.VISIBLE_TOWER_ITEMS);
+    return { visibleFoods: visible, hiddenCount: hidden };
+  }, [mealFoods]);
+
+  // Memoize compliance calculation
+  const complianceMetrics = useMemo(() => {
+    const calorieProgress = totalNutrition.calories / NUTRITION_TARGETS.CALORIES;
+    const ironProgress = totalNutrition.iron / NUTRITION_TARGETS.IRON;
+    const proteinProgress = totalNutrition.protein / NUTRITION_TARGETS.PROTEIN;
+    const calciumProgress = totalNutrition.calcium / NUTRITION_TARGETS.CALCIUM;
+    
+    const overallCompliance = Math.min(1, (calorieProgress + ironProgress + proteinProgress + calciumProgress) / 4);
+    
     return {
-      calories: total.calories + ((food.nutrients.calories?.amount ?? 0) * multiplier),
-      iron: total.iron + ((food.nutrients.iron?.amount ?? 0) * multiplier),
-      protein: total.protein + ((food.nutrients.protein?.amount ?? 0) * multiplier),
-      calcium: total.calcium + ((food.nutrients.calcium?.amount ?? 0) * multiplier),
+      calorieProgress: Math.min(1, calorieProgress),
+      ironProgress: Math.min(1, ironProgress),
+      proteinProgress: Math.min(1, proteinProgress),
+      calciumProgress: Math.min(1, calciumProgress),
+      overallCompliance,
     };
-  }, { calories: 0, iron: 0, protein: 0, calcium: 0 });
+  }, [totalNutrition]);
+
+  // Optimize event handlers with useCallback
+  const handleRemoveFood = useCallback((foodId: string) => {
+    onRemoveFood(foodId);
+  }, [onRemoveFood]);
+
+  const handleUpdateServing = useCallback((foodId: string, servingGrams: number) => {
+    onUpdateServing(foodId, servingGrams);
+  }, [onUpdateServing]);
+
+  const handleShowInfo = useCallback((food: Food) => {
+    onShowInfo(food);
+  }, [onShowInfo]);
+
+  const handleClearMeal = useCallback(() => {
+    onClearMeal();
+  }, [onClearMeal]);
 
   return (
     <div className="bg-gradient-to-b from-white via-orange-50/30 to-yellow-50/30 dark:from-slate-800 dark:via-slate-700/30 dark:to-slate-800 rounded-2xl shadow-xl border-2 border-orange-200/50 dark:border-slate-600/50 min-h-[600px] overflow-hidden transition-colors duration-300">
@@ -208,7 +253,7 @@ export function MealTower({
                 data-meal-tower
                 className="space-y-3 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
                 style={{ 
-                  maxHeight: `${4 * 85}px`, // Show 4 items (approximate 85px per item)
+                  maxHeight: `${MEAL_CONFIG.VISIBLE_TOWER_ITEMS * 85}px`, // Show configured items (approximate 85px per item)
                 }}
               >
                 {mealFoods.map((mealFood, index) => (
@@ -226,8 +271,8 @@ export function MealTower({
                 ))}
               </div>
               
-              {/* Scroll indicator when there are more than 4 items */}
-              {mealFoods.length > 4 && (
+              {/* Scroll indicator when there are more than configured visible items */}
+              {mealFoods.length > MEAL_CONFIG.VISIBLE_TOWER_ITEMS && (
                 <div className="absolute -right-1 top-1/2 transform -translate-y-1/2 flex flex-col items-center gap-1 text-gray-400">
                   <div className="text-xs font-medium">Scroll</div>
                   <div className="flex flex-col gap-1">
@@ -235,7 +280,7 @@ export function MealTower({
                     <div className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
                     <div className="w-1 h-1 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
                   </div>
-                  <div className="text-xs font-medium">{mealFoods.length - 4}+ more</div>
+                  <div className="text-xs font-medium">{mealFoods.length - MEAL_CONFIG.VISIBLE_TOWER_ITEMS}+ more</div>
                 </div>
               )}
             </div>
@@ -251,7 +296,19 @@ export function MealTower({
       </div>
     </div>
   );
-}
+};
+
+// Memoize the component for better performance
+export const MealTower = memo(MealTowerComponent, (prevProps, nextProps) => {
+  return (
+    prevProps.mealFoods.length === nextProps.mealFoods.length &&
+    prevProps.mealFoods.every((prev, index) => {
+      const next = nextProps.mealFoods[index];
+      return prev && next && prev.id === next.id && prev.servingGrams === next.servingGrams;
+    }) &&
+    prevProps.selectedFood?.fdcId === nextProps.selectedFood?.fdcId
+  );
+});
 
 function EmptyTower() {
   return (
@@ -311,7 +368,7 @@ interface MealTowerItemProps {
   servingOptions: readonly number[];
 }
 
-function MealTowerItem({
+const MealTowerItemComponent: React.FC<MealTowerItemProps> = ({
   mealFood,
   isTop,
   isBottom,
@@ -320,7 +377,7 @@ function MealTowerItem({
   onUpdateServing,
   onShowInfo,
   servingOptions
-}: MealTowerItemProps) {
+}) => {
   const { food, servingGrams } = mealFood;
   const categoryColor = categoryColors[food.category];
   const categoryIcon = categoryIcons[food.category];
@@ -424,4 +481,15 @@ function MealTowerItem({
       </div>
     </div>
   );
-}
+};
+
+// Memoize individual meal tower items for better performance
+const MealTowerItem = memo(MealTowerItemComponent, (prevProps, nextProps) => {
+  return (
+    prevProps.mealFood.id === nextProps.mealFood.id &&
+    prevProps.mealFood.servingGrams === nextProps.mealFood.servingGrams &&
+    prevProps.isSelected === nextProps.isSelected &&
+    prevProps.isTop === nextProps.isTop &&
+    prevProps.isBottom === nextProps.isBottom
+  );
+});

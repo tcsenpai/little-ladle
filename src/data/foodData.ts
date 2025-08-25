@@ -1,5 +1,5 @@
 import { Food } from '../types/food';
-import sophieFoodsJson from '../../data/sophie_foods.json';
+import sophieFoodsJson from './sophie_foods.json';
 
 // Transform the JSON data into our Food interface
 export const foods: Food[] = sophieFoodsJson.foods.map(food => ({

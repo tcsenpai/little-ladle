@@ -1,0 +1,72 @@
+services:
+  pappobot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: pappobot-app
+    restart: unless-stopped
+    ports:
+      - "3080:3000"
+    volumes:
+      # Persistent data storage (for future server-side data)
+      - pappobot-data:/app/data
+      # Environment configuration
+      - ./docker/config:/app/config:ro
+    environment:
+      # Environment variables can be overridden here
+      - NODE_ENV=production
+    networks:
+      - pappobot-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "traefik.enable=false"
+      - "app.name=pappobot"
+      - "app.version=1.0.0"
+      - "app.description=PappoBot React Application"
+
+  # Optional: Add a simple file browser for data management
+  filebrowser:
+    image: filebrowser/filebrowser:v2
+    container_name: pappobot-filebrowser
+    restart: unless-stopped
+    ports:
+      - "3081:80"
+    volumes:
+      - pappobot-data:/srv/data
+      - pappobot-filebrowser-config:/config
+    environment:
+      - FB_BASEURL=/files
+    networks:
+      - pappobot-network
+    profiles:
+      - management
+    labels:
+      - "app.name=pappobot-filebrowser"
+      - "app.description=File browser for PappoBot data management"
+
+volumes:
+  # Persistent application data
+  pappobot-data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: ./docker/data
+  
+  # Application logs
+  pappobot-logs:
+    driver: local
+  
+  # File browser configuration
+  pappobot-filebrowser-config:
+    driver: local
+
+networks:
+  pappobot-network:
+    driver: bridge
+    name: pappobot-network

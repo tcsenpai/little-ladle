@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { memo, useMemo, useCallback } from 'react';
 import { Food } from '../types/food';
 import { categoryColors } from '../data/foodData';
+import { UI_CONFIG } from '../constants/config';
 
 interface FoodBlockProps {
   food: Food;
@@ -30,7 +31,7 @@ const ageIndicators = {
   '12+ months': { color: '#FFC107', text: '12m+' }
 } as const;
 
-export function FoodBlock({ 
+const FoodBlockComponent = ({ 
   food, 
   portionSize = 1, 
   isHovered = false,
@@ -39,34 +40,64 @@ export function FoodBlock({
   onClick,
   onMouseEnter,
   onMouseLeave 
-}: FoodBlockProps) {
+}: FoodBlockProps) => {
   
-  const categoryColor = categoryColors[food.category];
-  const categoryIcon = categoryIcons[food.category];
-  const ageInfo = ageIndicators[food.ageGroup];
-  
-  // Get key nutrients for display
-  const iron = food.nutrients.iron?.amount ?? 0;
-  const protein = food.nutrients.protein?.amount ?? 0;
-  const calcium = food.nutrients.calcium?.amount ?? 0;
+  // Memoize expensive calculations
+  const { categoryColor, categoryIcon, ageInfo } = useMemo(() => ({
+    categoryColor: categoryColors[food.category],
+    categoryIcon: categoryIcons[food.category],
+    ageInfo: ageIndicators[food.ageGroup],
+  }), [food.category, food.ageGroup]);
+
+  // Memoize nutrient calculations
+  const nutrients = useMemo(() => ({
+    iron: food.nutrients.iron?.amount ?? 0,
+    protein: food.nutrients.protein?.amount ?? 0,
+    calcium: food.nutrients.calcium?.amount ?? 0,
+  }), [food.nutrients]);
+
+  // Memoize display name
+  const displayName = useMemo(() => 
+    food.shortName || food.name.substring(0, 30), 
+    [food.shortName, food.name]
+  );
+
+  // Memoize dynamic styles
+  const dynamicStyles = useMemo(() => ({
+    borderColor: categoryColor,
+    borderWidth: isHovered || isSelected ? '3px' : '2px',
+  }), [categoryColor, isHovered, isSelected]);
+
+  // Memoize CSS classes
+  const containerClasses = useMemo(() => `
+    relative bg-white rounded-food-block p-4 cursor-pointer
+    border-2 transition-all duration-200 ease-in-out
+    min-w-[160px] max-w-[200px] select-none
+    ${isDragging ? 'shadow-food-block-active scale-105 z-50' : ''}
+    ${isHovered && !isDragging ? 'shadow-food-block-hover scale-102' : 'shadow-food-block'}
+    ${isSelected ? 'ring-2 ring-blue-400 ring-offset-2' : ''}
+  `, [isDragging, isHovered, isSelected]);
+
+  // Optimize event handlers
+  const handleClick = useCallback(() => {
+    onClick?.();
+  }, [onClick]);
+
+  const handleMouseEnter = useCallback(() => {
+    onMouseEnter?.();
+  }, [onMouseEnter]);
+
+  const handleMouseLeave = useCallback(() => {
+    onMouseLeave?.();
+  }, [onMouseLeave]);
   
   return (
     <div
-      className={`
-        relative bg-white rounded-food-block p-4 cursor-pointer
-        border-2 transition-all duration-200 ease-in-out
-        min-w-[160px] max-w-[200px] select-none
-        ${isDragging ? 'shadow-food-block-active scale-105 z-50' : ''}
-        ${isHovered && !isDragging ? 'shadow-food-block-hover scale-102' : 'shadow-food-block'}
-        ${isSelected ? 'ring-2 ring-blue-400 ring-offset-2' : ''}
-      `}
-      style={{ 
-        borderColor: categoryColor,
-        borderWidth: isHovered || isSelected ? '3px' : '2px'
-      }}
-      onClick={onClick}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
+      className={containerClasses}
+      style={dynamicStyles}
+      onClick={handleClick}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       {/* Category color bar */}
       <div 
@@ -89,7 +120,7 @@ export function FoodBlock({
       
       {/* Food name */}
       <h3 className="font-semibold text-sm text-gray-800 mb-2 leading-tight">
-        {food.shortName || food.name.substring(0, 30)}
+        {displayName}
       </h3>
       
       {/* Portion size indicator */}
@@ -111,22 +142,22 @@ export function FoodBlock({
       
       {/* Key nutrition preview */}
       <div className="space-y-1">
-        {iron > 0.5 && (
+        {nutrients.iron > 0.5 && (
           <div className="flex justify-between text-xs">
             <span className="text-gray-600">Iron</span>
-            <span className="font-medium text-red-600">{iron.toFixed(1)}mg</span>
+            <span className="font-medium text-red-600">{nutrients.iron.toFixed(1)}mg</span>
           </div>
         )}
-        {protein > 2 && (
+        {nutrients.protein > 2 && (
           <div className="flex justify-between text-xs">
             <span className="text-gray-600">Protein</span>
-            <span className="font-medium text-purple-600">{protein.toFixed(1)}g</span>
+            <span className="font-medium text-purple-600">{nutrients.protein.toFixed(1)}g</span>
           </div>
         )}
-        {calcium > 10 && (
+        {nutrients.calcium > 10 && (
           <div className="flex justify-between text-xs">
             <span className="text-gray-600">Calcium</span>
-            <span className="font-medium text-blue-600">{calcium.toFixed(0)}mg</span>
+            <span className="font-medium text-blue-600">{nutrients.calcium.toFixed(0)}mg</span>
           </div>
         )}
       </div>
@@ -147,4 +178,15 @@ export function FoodBlock({
       </div>
     </div>
   );
-}
+};
+
+// Memoize the component with custom comparison
+export const FoodBlock = memo(FoodBlockComponent, (prevProps, nextProps) => {
+  return (
+    prevProps.food.fdcId === nextProps.food.fdcId &&
+    prevProps.portionSize === nextProps.portionSize &&
+    prevProps.isHovered === nextProps.isHovered &&
+    prevProps.isSelected === nextProps.isSelected &&
+    prevProps.isDragging === nextProps.isDragging
+  );
+});
