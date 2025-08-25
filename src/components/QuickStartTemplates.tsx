@@ -33,9 +33,9 @@ const mealTemplates: MealTemplate[] = [
     icon: '🌅',
     ageGroup: '6-12_months',
     foods: [
-      { foodName: 'Infant cereal, rice, dry fortified', servingGrams: 15 },
+      { foodName: 'Infant cereal, rice, prepared with water, without salt, strained', servingGrams: 15 },
       { foodName: 'Bananas, raw', servingGrams: 10 },
-      { foodName: 'Breast milk', servingGrams: 5 }
+      { foodName: 'Applesauce, canned, unsweetened, without added ascorbic acid', servingGrams: 10 }
     ]
   },
   {
@@ -57,7 +57,7 @@ const mealTemplates: MealTemplate[] = [
     icon: '💪',
     ageGroup: '6-12_months',
     foods: [
-      { foodName: 'Chicken, broilers or fryers, breast, meat only, cooked, roasted', servingGrams: 15 },
+      { foodName: 'Chicken breast tenders, breaded, cooked, microwaved', servingGrams: 15 },
       { foodName: 'Sweet potato, cooked, baked in skin, flesh, without salt', servingGrams: 10 },
       { foodName: 'Broccoli, cooked, boiled, drained, without salt', servingGrams: 10 }
     ]
@@ -70,10 +70,10 @@ const mealTemplates: MealTemplate[] = [
     icon: '🍓',
     ageGroup: '12-24_months',
     foods: [
-      { foodName: 'Infant cereal, rice, dry fortified', servingGrams: 20 },
+      { foodName: 'Infant cereal, rice, prepared with water, without salt, strained', servingGrams: 20 },
       { foodName: 'Bananas, raw', servingGrams: 15 },
       { foodName: 'Strawberries, raw', servingGrams: 10 },
-      { foodName: 'Milk, whole, 3.25% milkfat', servingGrams: 10 }
+      { foodName: 'Milk, whole, 3.25% milkfat, with added vitamin D', servingGrams: 10 }
     ]
   },
   {
@@ -83,8 +83,8 @@ const mealTemplates: MealTemplate[] = [
     icon: '🍽️',
     ageGroup: '12-24_months',
     foods: [
-      { foodName: 'Chicken, broilers or fryers, breast, meat only, cooked, roasted', servingGrams: 20 },
-      { foodName: 'Rice, white, long-grain, regular, cooked', servingGrams: 15 },
+      { foodName: 'Chicken breast tenders, breaded, cooked, microwaved', servingGrams: 20 },
+      { foodName: 'Rice, brown, long-grain, cooked', servingGrams: 15 },
       { foodName: 'Broccoli, cooked, boiled, drained, without salt', servingGrams: 15 },
       { foodName: 'Avocados, raw, all commercial varieties', servingGrams: 10 }
     ]
@@ -97,7 +97,7 @@ const mealTemplates: MealTemplate[] = [
     ageGroup: '12-24_months',
     foods: [
       { foodName: 'Cheese, cheddar', servingGrams: 10 },
-      { foodName: 'Crackers, saltines (includes oyster, soda, soup)', servingGrams: 5 },
+      { foodName: 'Crackers, standard snack-type, regular', servingGrams: 5 },
       { foodName: 'Blueberries, raw', servingGrams: 15 },
       { foodName: 'Carrots, cooked, boiled, drained, without salt', servingGrams: 10 }
     ]

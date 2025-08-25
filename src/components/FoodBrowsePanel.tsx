@@ -377,8 +377,8 @@ export function FoodBrowsePanel({
           </div>
         )}
 
-        {/* Category Power-Up Tabs */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+        {/* Compact Category Icons Bar */}
+        <div className="flex items-center justify-center gap-1 py-2 mb-4 bg-gradient-to-r from-gray-50 to-white dark:from-slate-700 dark:to-slate-800 rounded-xl border border-gray-200 dark:border-slate-600 transition-colors duration-300 overflow-x-auto">
           {categories.map(category => {
             const categoryColor = category !== 'all' ? categoryColors[category as keyof typeof categoryColors] : '#6B7280';
             const isActive = activeCategory === category;
@@ -388,66 +388,40 @@ export function FoodBrowsePanel({
                 key={category}
                 onClick={() => onCategoryChange(category)}
                 className={`
-                  relative group p-3 rounded-2xl text-xs font-black transition-all duration-300 transform hover:scale-105 shadow-md overflow-hidden
-                  ${isActive
-                    ? 'text-white shadow-xl scale-105'
-                    : 'bg-white text-gray-700 hover:shadow-lg border-2 hover:border-opacity-50'
+                  relative group flex flex-col items-center px-2 py-2 rounded-lg transition-all duration-200 transform hover:scale-105 active:scale-95 flex-shrink-0
+                  ${isActive 
+                    ? 'bg-white dark:bg-slate-600 shadow-md ring-2' 
+                    : 'hover:bg-white/50 dark:hover:bg-slate-600/50'
                   }
                 `}
-                style={{
-                  backgroundColor: isActive ? categoryColor : 'white',
-                  borderColor: isActive ? 'transparent' : `${categoryColor}40`
+                style={{ 
+                  ringColor: isActive ? categoryColor : 'transparent'
                 }}
+                title={`${categoryNames[category]} - ${category === 'all' ? 'All foods' : categoryDescriptions[category as keyof typeof categoryDescriptions]}`}
               >
-                {/* Background pattern for active state */}
+                <div 
+                  className="text-xl mb-0.5 transition-all duration-200 group-hover:scale-110"
+                  style={{ 
+                    filter: isActive ? 'drop-shadow(0 1px 2px rgba(0,0,0,0.1))' : 'none'
+                  }}
+                >
+                  {category === 'all' ? '🍽️' : categoryIcons[category as keyof typeof categoryIcons]}
+                </div>
+                <div 
+                  className={`text-xs font-bold transition-colors duration-200 leading-tight ${
+                    isActive 
+                      ? 'text-gray-800 dark:text-slate-100' 
+                      : 'text-gray-600 dark:text-slate-400 group-hover:text-gray-800 dark:group-hover:text-slate-200'
+                  }`}
+                >
+                  {category === 'all' ? 'All' : categoryNames[category]}
+                </div>
                 {isActive && (
                   <div 
-                    className="absolute inset-0 opacity-20"
-                    style={{
-                      background: `linear-gradient(45deg, transparent 25%, rgba(255,255,255,0.1) 25%, rgba(255,255,255,0.1) 50%, transparent 50%, transparent 75%, rgba(255,255,255,0.1) 75%)`
-                    }}
-                  />
+                    className="absolute -bottom-0.5 left-1/2 transform -translate-x-1/2 w-1 h-1 rounded-full"
+                    style={{ backgroundColor: categoryColor }}
+                  ></div>
                 )}
-                
-                <div className="relative flex flex-col items-center gap-2">
-                  <div 
-                    className={`w-8 h-8 rounded-xl flex items-center justify-center shadow-sm transition-all duration-300 ${
-                      isActive 
-                        ? 'bg-white/20 text-white' 
-                        : 'bg-gray-100 group-hover:bg-gray-50'
-                    }`}
-                    style={{
-                      backgroundColor: isActive ? 'rgba(255,255,255,0.2)' : `${categoryColor}15`,
-                      color: isActive ? 'white' : categoryColor
-                    }}
-                  >
-                    <span className="text-lg">
-                      {category === 'all' ? '🍽️' : categoryIcons[category as keyof typeof categoryIcons]}
-                    </span>
-                  </div>
-                  <div className="text-center">
-                    <div className="font-black text-xs leading-tight">
-                      {categoryNames[category]}
-                    </div>
-                    {category !== 'all' && (
-                      <div className={`text-xs opacity-75 leading-tight mt-0.5 ${
-                        isActive ? 'text-white' : 'text-gray-500'
-                      }`}>
-                        {categoryDescriptions[category as keyof typeof categoryDescriptions]}
-                      </div>
-                    )}
-                  </div>
-                </div>
-                
-                {/* Hover glow effect */}
-                <div 
-                  className={`absolute inset-0 rounded-2xl transition-opacity duration-300 ${
-                    isActive ? 'opacity-0' : 'opacity-0 group-hover:opacity-20'
-                  }`}
-                  style={{
-                    background: `linear-gradient(135deg, ${categoryColor}20, ${categoryColor}40)`
-                  }}
-                />
               </button>
             );
           })}
@@ -520,10 +494,10 @@ function FoodBrowseItem({ food, isSelected, onAddFood, onShowInfo, childProfile 
     <div 
       data-food-id={food.fdcId}
       className={`
-        group flex items-center gap-4 p-4 rounded-2xl transition-all duration-300 border-2 transform hover:scale-[1.02] relative
+        group flex items-center gap-3 md:gap-4 p-3 md:p-4 rounded-2xl transition-all duration-300 border-2 transform hover:scale-[1.02] active:scale-[0.98] relative touch-manipulation
         ${isSelected 
           ? 'bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/30 dark:to-purple-900/30 border-indigo-300 dark:border-indigo-600 shadow-xl' 
-          : 'bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-600 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-slate-700 dark:hover:to-slate-600 hover:border-gray-300 dark:hover:border-slate-500 shadow-md hover:shadow-xl'
+          : 'bg-white dark:bg-slate-800 border-gray-200 dark:border-slate-600 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100 dark:hover:from-slate-700 dark:hover:to-slate-600 hover:border-gray-300 dark:hover:border-slate-500 shadow-md hover:shadow-xl active:shadow-sm'
         }
       `}
       style={{
@@ -606,18 +580,21 @@ function FoodBrowseItem({ food, isSelected, onAddFood, onShowInfo, childProfile 
         </div>
       </button>
 
-      {/* Enhanced Add Button with Success Feedback */}
+      {/* Touch-Optimized Add Button */}
       <button
         onClick={() => onAddFood(food)}
-        className="add-food-btn w-12 h-12 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white rounded-2xl font-black text-xl transition-all duration-300 focus:outline-none focus:ring-4 focus:ring-emerald-300 focus:ring-offset-2 shadow-lg hover:shadow-xl flex items-center justify-center transform hover:scale-110 hover:rotate-12 active:scale-95 relative overflow-hidden group"
+        className="add-food-btn min-w-[48px] min-h-[48px] w-12 h-12 md:w-14 md:h-14 bg-gradient-to-r from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 active:from-emerald-700 active:to-emerald-800 text-white rounded-2xl font-black text-lg md:text-xl transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-emerald-300 focus:ring-offset-2 shadow-lg hover:shadow-xl active:shadow-md flex items-center justify-center transform hover:scale-110 hover:rotate-12 active:scale-90 relative overflow-hidden group touch-manipulation flex-shrink-0"
         title={`Add ${food.shortName || food.name} to meal`}
       >
-        {/* Success ripple effect */}
-        <div className="absolute inset-0 bg-white rounded-2xl opacity-0 group-active:opacity-20 transition-opacity duration-150"></div>
-        <span className="relative z-10 transform group-hover:scale-110 transition-transform duration-300">+</span>
+        {/* Touch feedback ripple effect */}
+        <div className="absolute inset-0 bg-white rounded-2xl opacity-0 group-active:opacity-30 transition-opacity duration-100"></div>
+        <span className="relative z-10 transform group-hover:scale-110 group-active:scale-95 transition-transform duration-200">+</span>
         
         {/* Hover glow effect */}
         <div className="absolute inset-0 bg-gradient-to-r from-emerald-400 to-emerald-500 rounded-2xl opacity-0 group-hover:opacity-30 transition-opacity duration-300 blur-sm scale-110"></div>
+        
+        {/* Touch state indicator */}
+        <div className="absolute inset-0 bg-emerald-300 rounded-2xl opacity-0 group-active:opacity-20 transition-opacity duration-75"></div>
       </button>
     </div>
   );

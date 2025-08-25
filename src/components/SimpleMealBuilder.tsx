@@ -14,6 +14,7 @@ import { MealFood } from '../utils/whoCompliance';
 import { AutoChefSuggestion } from '../utils/autoChef';
 import { DarkModeToggle } from './DarkModeToggle';
 import { QuickStartTemplates } from './QuickStartTemplates';
+import { MobileDrawer } from './MobileDrawer';
 
 // USDA standard serving sizes in grams
 const SERVING_OPTIONS = [5, 10, 15, 20] as const;
@@ -32,6 +33,7 @@ export function SimpleMealBuilder() {
   const [isChildProfileModalOpen, setIsChildProfileModalOpen] = useState(false);
   const [isAutoChefModalOpen, setIsAutoChefModalOpen] = useState(false);
   const [isQuickStartTemplatesOpen, setIsQuickStartTemplatesOpen] = useState(false);
+  const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
 
   // Load child profiles from localStorage on mount
   useEffect(() => {
@@ -231,56 +233,80 @@ export function SimpleMealBuilder() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-orange-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 transition-colors duration-300">
-      {/* Modern Material Header */}
+      {/* Mobile-First Responsive Header */}
       <header className="bg-white dark:bg-slate-800 shadow-sm border-b dark:border-slate-700 transition-colors duration-300">
-        <div className="w-full px-6">
-          <div className="flex items-center justify-between h-20">
-            <div className="flex items-center space-x-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-orange-500 rounded-2xl flex items-center justify-center shadow-md">
-                <span className="text-2xl">🍽️</span>
+        <div className="w-full px-4 md:px-6">
+          <div className="flex items-center justify-between h-16 md:h-20">
+            
+            {/* Logo - Responsive sizing */}
+            <div className="flex items-center space-x-3 md:space-x-4 flex-shrink-0">
+              <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-br from-emerald-500 to-orange-500 rounded-2xl flex items-center justify-center shadow-md">
+                <span className="text-xl md:text-2xl">🍽️</span>
               </div>
-              <div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight transition-colors duration-300">
+              <div className="hidden sm:block">
+                <h1 className="text-lg md:text-2xl font-bold text-gray-900 dark:text-white tracking-tight transition-colors duration-300">
                   PappoBot
                 </h1>
-                <p className="text-sm text-gray-500 dark:text-slate-300 font-medium transition-colors duration-300">
+                <p className="text-xs md:text-sm text-gray-500 dark:text-slate-300 font-medium transition-colors duration-300 hidden md:block">
                   WHO-Compliant Baby Nutrition Tracker
                 </p>
               </div>
             </div>
-            <div className="flex items-center space-x-4">
+
+            {/* Mobile-Optimized Action Buttons */}
+            <div className="flex items-center space-x-2 md:space-x-4">
+              {/* Mobile Hamburger Menu - Only visible on mobile */}
+              <button
+                onClick={() => setIsMobileDrawerOpen(true)}
+                className="md:hidden flex flex-col items-center justify-center w-10 h-10 bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600 rounded-xl transition-colors duration-200 space-y-1 touch-manipulation"
+                aria-label="Open mobile menu"
+              >
+                <div className="w-5 h-0.5 bg-gray-600 dark:bg-slate-300 rounded-full"></div>
+                <div className="w-5 h-0.5 bg-gray-600 dark:bg-slate-300 rounded-full"></div>
+                <div className="w-5 h-0.5 bg-gray-600 dark:bg-slate-300 rounded-full"></div>
+              </button>
+              
               <DarkModeToggle />
+              
+              {/* Quick-Start - Hidden on small screens */}
               <button
                 onClick={() => setIsQuickStartTemplatesOpen(true)}
-                className="inline-flex items-center px-4 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white text-sm font-semibold rounded-xl shadow-md hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 dark:focus:ring-offset-slate-800 transform hover:scale-105"
+                className="hidden sm:inline-flex items-center px-3 md:px-4 py-2 md:py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white text-xs md:text-sm font-semibold rounded-xl shadow-md hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 dark:focus:ring-offset-slate-800 transform hover:scale-105 active:scale-95 min-h-[44px] touch-manipulation"
               >
-                <span className="text-sm mr-2">🚀</span>
-                Quick-Start
+                <span className="text-sm mr-1 md:mr-2">🚀</span>
+                <span className="hidden md:inline">Quick-Start</span>
+                <span className="md:hidden">Quick</span>
               </button>
+              
+              {/* Auto-Chef - Primary action */}
               <button
                 onClick={() => setIsAutoChefModalOpen(true)}
-                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 active:from-emerald-700 active:to-green-700 text-white text-sm font-black rounded-xl shadow-lg hover:shadow-xl active:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 dark:focus:ring-offset-slate-800 transform hover:scale-105 active:scale-95 relative overflow-hidden group"
+                className="inline-flex items-center px-3 md:px-6 py-2.5 md:py-3 bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 active:from-emerald-700 active:to-green-700 text-white text-xs md:text-sm font-black rounded-xl shadow-lg hover:shadow-xl active:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:ring-offset-2 dark:focus:ring-offset-slate-800 transform hover:scale-105 active:scale-95 relative overflow-hidden group min-h-[44px] touch-manipulation"
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200"></div>
-                <span className="text-lg mr-2 relative z-10">⚡</span>
-                <span className="relative z-10">Auto-Chef</span>
-                <div className="ml-2 px-2 py-1 bg-white/20 rounded-lg text-xs font-bold relative z-10 animate-pulse">AI</div>
+                <span className="text-base md:text-lg mr-1 md:mr-2 relative z-10">⚡</span>
+                <span className="relative z-10 hidden sm:inline">Auto-Chef</span>
+                <span className="relative z-10 sm:hidden">AI</span>
+                <div className="ml-1 md:ml-2 px-1.5 md:px-2 py-0.5 md:py-1 bg-white/20 rounded-lg text-xs font-bold relative z-10 animate-pulse">AI</div>
               </button>
+              
+              {/* Add Food - Compact on mobile */}
               <button
                 onClick={() => setIsAddFoodModalOpen(true)}
-                className="inline-flex items-center px-5 py-2.5 bg-white dark:bg-slate-700 hover:bg-orange-50 dark:hover:bg-slate-600 text-gray-700 dark:text-slate-200 hover:text-orange-700 dark:hover:text-orange-400 text-sm font-semibold rounded-xl border border-orange-200 dark:border-slate-600 shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800"
+                className="inline-flex items-center px-3 md:px-5 py-2.5 bg-white dark:bg-slate-700 hover:bg-orange-50 dark:hover:bg-slate-600 text-gray-700 dark:text-slate-200 hover:text-orange-700 dark:hover:text-orange-400 text-xs md:text-sm font-semibold rounded-xl border border-orange-200 dark:border-slate-600 shadow-sm hover:shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 min-h-[44px] touch-manipulation transform active:scale-95"
               >
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-4 h-4 mr-1 md:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
                 </svg>
-                Add Food
+                <span className="hidden sm:inline">Add Food</span>
+                <span className="sm:hidden">Add</span>
               </button>
             </div>
           </div>
         </div>
       </header>
 
-      <main className="w-full px-6 py-8">
+      <main className="w-full px-4 md:px-6 py-4 md:py-8">
         {/* Child Profile Section */}
         <div className="mb-4">
           <ChildProfileBar
@@ -293,11 +319,11 @@ export function SimpleMealBuilder() {
         </div>
 
 
-        {/* Full-Width 3-Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
+        {/* Adaptive Responsive Layout */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-4 md:gap-6 w-full">
           
-          {/* Food Browse Panel */}
-          <div className="lg:col-span-3">
+          {/* Food Browse Panel - Full width on mobile, left column on tablet, left sidebar on desktop */}
+          <div className="md:col-span-1 xl:col-span-3 order-1">
             <FoodBrowsePanel
               foods={availableFoods}
               categories={categories}
@@ -314,8 +340,8 @@ export function SimpleMealBuilder() {
             />
           </div>
 
-          {/* Meal Tower */}
-          <div className="lg:col-span-4">
+          {/* Meal Tower - Center focus on all screens */}
+          <div className="md:col-span-1 xl:col-span-4 order-2 md:order-2">
             <MealTower
               mealFoods={mealFoods}
               onRemoveFood={handleRemoveFood}
@@ -327,21 +353,27 @@ export function SimpleMealBuilder() {
             />
           </div>
 
-          {/* Info and Compliance Panels */}
-          <div className="lg:col-span-5 space-y-3">
-            {/* WHO Compliance Panel - Now on top and thinner */}
-            <div className="min-h-[280px]">
-              <WHOCompliancePanel
-                mealFoods={mealFoods}
-                childProfile={activeChildProfile}
-              />
-            </div>
+          {/* Info and Compliance Panels - Stack vertically on mobile and tablet */}
+          <div className="md:col-span-2 xl:col-span-5 order-3 space-y-3">
             
-            {/* Food Details Panel - Now below with reduced gap */}
-            <div className="min-h-[320px]">
-              <FoodInfoPanel 
-                food={selectedFood}
-              />
+            {/* Mobile: Stack panels vertically with reduced heights */}
+            <div className="grid grid-cols-1 lg:grid-cols-1 gap-3">
+              
+              {/* WHO Compliance Panel */}
+              <div className="min-h-[200px] md:min-h-[250px] xl:min-h-[280px]">
+                <WHOCompliancePanel
+                  mealFoods={mealFoods}
+                  childProfile={activeChildProfile}
+                />
+              </div>
+              
+              {/* Food Details Panel */}
+              <div className="min-h-[250px] md:min-h-[300px] xl:min-h-[320px]">
+                <FoodInfoPanel 
+                  food={selectedFood}
+                />
+              </div>
+              
             </div>
           </div>
         </div>
@@ -379,6 +411,18 @@ export function SimpleMealBuilder() {
         onClose={() => setIsQuickStartTemplatesOpen(false)}
         onApplyTemplate={handleApplyTemplate}
         childProfile={activeChildProfile}
+      />
+
+      {/* Mobile Navigation Drawer */}
+      <MobileDrawer
+        isOpen={isMobileDrawerOpen}
+        onClose={() => setIsMobileDrawerOpen(false)}
+        onQuickStart={() => setIsQuickStartTemplatesOpen(true)}
+        onAutoChef={() => setIsAutoChefModalOpen(true)}
+        onAddFood={() => setIsAddFoodModalOpen(true)}
+        childProfile={activeChildProfile}
+        onCreateProfile={() => setIsChildProfileModalOpen(true)}
+        onEditProfile={() => setIsChildProfileModalOpen(true)}
       />
     </div>
   );
