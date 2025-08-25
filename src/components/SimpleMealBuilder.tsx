@@ -133,32 +133,40 @@ export function SimpleMealBuilder() {
   }, [closeModal]);
 
   const handleSaveChildProfile = useCallback(async (profile: ChildProfile) => {
-    setChildProfiles(prev => {
-      const existing = prev.find(p => p.id === profile.id);
-      let newProfiles;
+    try {
+      setChildProfiles(prev => {
+        const existing = prev.find(p => p.id === profile.id);
+        let newProfiles;
+        
+        if (existing) {
+          // Update existing profile
+          newProfiles = prev.map(p => p.id === profile.id ? profile : p);
+        } else {
+          // Add new profile
+          newProfiles = [...prev, profile];
+        }
+        
+        // Save to server
+        dataService.saveChildProfiles(newProfiles);
+        return newProfiles;
+      });
       
-      if (existing) {
-        // Update existing profile
-        newProfiles = prev.map(p => p.id === profile.id ? profile : p);
-      } else {
-        // Add new profile
-        newProfiles = [...prev, profile];
-      }
-      
-      // Save to server
-      dataService.saveChildProfiles(newProfiles);
-      return newProfiles;
-    });
-    
-    setActiveChildProfile(profile);
-    await dataService.setPreference('active-child-id', profile.id);
-    console.log('Saved child profile:', profile.name);
+      setActiveChildProfile(profile);
+      await dataService.setPreference('active-child-id', profile.id);
+      console.log('Saved child profile:', profile.name);
+    } catch (error) {
+      console.error('Failed to save child profile:', error);
+    }
   }, []);
   
   const handleSelectChildProfile = useCallback(async (profile: ChildProfile) => {
-    setActiveChildProfile(profile);
-    await dataService.setPreference('active-child-id', profile.id);
-    console.log('Selected child profile:', profile.name);
+    try {
+      setActiveChildProfile(profile);
+      await dataService.setPreference('active-child-id', profile.id);
+      console.log('Selected child profile:', profile.name);
+    } catch (error) {
+      console.error('Failed to select child profile:', error);
+    }
   }, []);
 
   const handleEditChildProfile = useCallback(() => {
