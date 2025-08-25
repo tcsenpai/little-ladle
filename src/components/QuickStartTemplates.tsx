@@ -33,9 +33,9 @@ const mealTemplates: MealTemplate[] = [
     icon: '🌅',
     ageGroup: '6-12_months',
     foods: [
-      { foodName: 'Infant cereal, rice, prepared with water, without salt, strained', servingGrams: 15 },
+      { foodName: 'Rice, brown, parboiled, cooked, UNCLE BENS', servingGrams: 15 },
       { foodName: 'Bananas, raw', servingGrams: 10 },
-      { foodName: 'Applesauce, canned, unsweetened, without added ascorbic acid', servingGrams: 10 }
+      { foodName: 'Yogurt, plain, whole milk', servingGrams: 10 }
     ]
   },
   {
@@ -45,9 +45,9 @@ const mealTemplates: MealTemplate[] = [
     icon: '🥕',
     ageGroup: '6-12_months',
     foods: [
-      { foodName: 'Sweet potato, cooked, baked in skin, flesh, without salt', servingGrams: 15 },
-      { foodName: 'Carrots, cooked, boiled, drained, without salt', servingGrams: 10 },
-      { foodName: 'Avocados, raw, all commercial varieties', servingGrams: 10 }
+      { foodName: 'Sweet potato leaves, cooked, steamed, with salt', servingGrams: 15 },
+      { foodName: 'Carrots, cooked, boiled, drained, with salt', servingGrams: 10 },
+      { foodName: 'Avocados, raw, California', servingGrams: 10 }
     ]
   },
   {
@@ -58,8 +58,8 @@ const mealTemplates: MealTemplate[] = [
     ageGroup: '6-12_months',
     foods: [
       { foodName: 'Chicken breast tenders, breaded, cooked, microwaved', servingGrams: 15 },
-      { foodName: 'Sweet potato, cooked, baked in skin, flesh, without salt', servingGrams: 10 },
-      { foodName: 'Broccoli, cooked, boiled, drained, without salt', servingGrams: 10 }
+      { foodName: 'Sweet potato leaves, cooked, steamed, with salt', servingGrams: 10 },
+      { foodName: 'Broccoli, raw', servingGrams: 10 }
     ]
   },
   // 12-24 months templates
@@ -70,10 +70,10 @@ const mealTemplates: MealTemplate[] = [
     icon: '🍓',
     ageGroup: '12-24_months',
     foods: [
-      { foodName: 'Infant cereal, rice, prepared with water, without salt, strained', servingGrams: 20 },
+      { foodName: 'Rice, brown, parboiled, cooked, UNCLE BENS', servingGrams: 20 },
       { foodName: 'Bananas, raw', servingGrams: 15 },
       { foodName: 'Strawberries, raw', servingGrams: 10 },
-      { foodName: 'Milk, whole, 3.25% milkfat, with added vitamin D', servingGrams: 10 }
+      { foodName: 'Yogurt, plain, whole milk', servingGrams: 10 }
     ]
   },
   {
@@ -84,9 +84,9 @@ const mealTemplates: MealTemplate[] = [
     ageGroup: '12-24_months',
     foods: [
       { foodName: 'Chicken breast tenders, breaded, cooked, microwaved', servingGrams: 20 },
-      { foodName: 'Rice, brown, long-grain, cooked', servingGrams: 15 },
-      { foodName: 'Broccoli, cooked, boiled, drained, without salt', servingGrams: 15 },
-      { foodName: 'Avocados, raw, all commercial varieties', servingGrams: 10 }
+      { foodName: 'Rice, brown, parboiled, cooked, UNCLE BENS', servingGrams: 15 },
+      { foodName: 'Broccoli, raw', servingGrams: 15 },
+      { foodName: 'Avocados, raw, California', servingGrams: 10 }
     ]
   },
   {
@@ -96,10 +96,10 @@ const mealTemplates: MealTemplate[] = [
     icon: '👶',
     ageGroup: '12-24_months',
     foods: [
-      { foodName: 'Cheese, cheddar', servingGrams: 10 },
-      { foodName: 'Crackers, standard snack-type, regular', servingGrams: 5 },
+      { foodName: 'Cheese, ricotta, whole milk', servingGrams: 10 },
+      { foodName: 'Carrots, raw', servingGrams: 15 },
       { foodName: 'Blueberries, raw', servingGrams: 15 },
-      { foodName: 'Carrots, cooked, boiled, drained, without salt', servingGrams: 10 }
+      { foodName: 'Carrots, cooked, boiled, drained, with salt', servingGrams: 10 }
     ]
   }
 ];
@@ -119,18 +119,23 @@ export function QuickStartTemplates({ isOpen, onClose, onApplyTemplate, childPro
   const applyTemplate = (template: MealTemplate) => {
     const templateFoods: MealFood[] = [];
     
+    console.log('Applying template:', template.name);
     template.foods.forEach((templateFood, index) => {
       const food = findFood(templateFood.foodName);
       if (food) {
+        console.log('✅ Found food:', templateFood.foodName);
         templateFoods.push({
           id: `template-${template.id}-${Date.now()}-${index}`,
           food: food,
           servingGrams: templateFood.servingGrams,
           addedAt: Date.now() + index
         });
+      } else {
+        console.log('❌ Could not find food:', templateFood.foodName);
       }
     });
     
+    console.log('Successfully matched', templateFoods.length, 'out of', template.foods.length, 'foods');
     onApplyTemplate(templateFoods);
     onClose();
   };
