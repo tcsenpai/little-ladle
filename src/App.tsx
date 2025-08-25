@@ -1,9 +1,9 @@
 import React from 'react';
-import { DesignSystemDemo } from './components/DesignSystemDemo';
+import { Phase12Demo } from './components/Phase12Demo';
 import './styles/index.css';
 
 function App() {
-  return <DesignSystemDemo />;
+  return <Phase12Demo />;
 }
 
 export default App;
