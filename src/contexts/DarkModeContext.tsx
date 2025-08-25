@@ -48,10 +48,13 @@ export function DarkModeProvider({ children }: DarkModeProviderProps) {
     }
   }, [isDarkMode]);
 
-  const toggleDarkMode = async () => {
+  const toggleDarkMode = () => {
     const newMode = !isDarkMode;
     setIsDarkMode(newMode);
-    await dataService.setPreference('dark-mode', newMode);
+    // Save to server (fire and forget to avoid blocking UI)
+    dataService.setPreference('dark-mode', newMode).catch(error => {
+      console.error('Failed to save dark mode preference:', error);
+    });
   };
 
   return (
