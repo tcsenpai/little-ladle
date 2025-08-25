@@ -1,9 +1,9 @@
 import React from 'react';
-import { Phase12Demo } from './components/Phase12Demo';
+import { ScratchDemo } from './components/ScratchDemo';
 import './styles/index.css';
 
 function App() {
-  return <Phase12Demo />;
+  return <ScratchDemo />;
 }
 
 export default App;

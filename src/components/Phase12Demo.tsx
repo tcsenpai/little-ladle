@@ -7,19 +7,22 @@ import {
   closestCenter,
 } from '@dnd-kit/core';
 import { DraggableFoodBlock } from './DraggableFoodBlock';
-import { MealCanvas } from './MealCanvas';
+import { MealCanvas, getOptimalPosition } from './MealCanvas';
+import { FoodInfoPanel } from './FoodInfoPanel';
 import { foods, getFoodsByCategory } from '../data/foodData';
 import { Food } from '../types/food';
 
 interface MealFood extends Food {
   id: string;
   portionSize: number;
+  position: { x: number; y: number };
 }
 
 export function Phase12Demo() {
   const [mealFoods, setMealFoods] = useState<MealFood[]>([]);
   const [activeCategory, setActiveCategory] = useState<Food['category'] | 'all'>('all');
   const [activeDragFood, setActiveDragFood] = useState<Food | null>(null);
+  const [selectedFood, setSelectedFood] = useState<Food | null>(null);
 
   // Filter foods by category
   const filteredFoods = activeCategory === 'all' 
@@ -51,7 +54,7 @@ export function Phase12Demo() {
 
     if (!over || over.id !== 'meal-canvas') return;
 
-    if (active.data.current?.type === 'food') {
+    if (active.data.current?.type === 'food' && active.data.current?.isFromSidebar) {
       const food = active.data.current.food as Food;
       
       // Check if food already exists in meal
@@ -66,11 +69,15 @@ export function Phase12Demo() {
           )
         );
       } else {
+        // Calculate optimal position for new block
+        const position = getOptimalPosition(mealFoods);
+        
         // Add new food to meal
         const newMealFood: MealFood = {
           ...food,
           id: `meal-${food.fdcId}-${Date.now()}`,
-          portionSize: 1
+          portionSize: 1,
+          position
         };
         setMealFoods(prev => [...prev, newMealFood]);
       }
@@ -87,6 +94,24 @@ export function Phase12Demo() {
 
   const handleRemoveFood = (foodId: string) => {
     setMealFoods(prev => prev.filter(food => food.id !== foodId));
+  };
+
+  const handlePositionChange = (foodId: string, newPosition: { x: number; y: number }) => {
+    setMealFoods(prev => 
+      prev.map(food => 
+        food.id === foodId 
+          ? { ...food, position: newPosition }
+          : food
+      )
+    );
+  };
+
+  const handleInfoClick = (food: Food) => {
+    setSelectedFood(food);
+  };
+
+  const handleCloseInfo = () => {
+    setSelectedFood(null);
   };
 
   return (
@@ -116,7 +141,7 @@ export function Phase12Demo() {
         </div>
 
         <div className="max-w-7xl mx-auto px-6 py-6">
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
             
             {/* Food Selection Panel */}
             <div className="lg:col-span-1">
@@ -125,6 +150,9 @@ export function Phase12Demo() {
                   <h2 className="text-lg font-semibold text-gray-800 mb-3">
                     🥗 Food Selection
                   </h2>
+                  <p className="text-xs text-gray-600 mb-3">
+                    Click for info • Drag to add
+                  </p>
                   
                   {/* Category filters */}
                   <div className="flex flex-wrap gap-1 mb-4">
@@ -153,6 +181,7 @@ export function Phase12Demo() {
                       key={food.fdcId}
                       food={food}
                       showNutritionPreview={true}
+                      onInfoClick={handleInfoClick}
                     />
                   ))}
                 </div>
@@ -165,7 +194,19 @@ export function Phase12Demo() {
                 mealFoods={mealFoods}
                 onPortionChange={handlePortionChange}
                 onRemoveFood={handleRemoveFood}
+                onPositionChange={handlePositionChange}
+                onInfoClick={handleInfoClick}
               />
+            </div>
+
+            {/* Food Info Panel */}
+            <div className="lg:col-span-1">
+              <div className="sticky top-6">
+                <FoodInfoPanel 
+                  food={selectedFood} 
+                  onClose={handleCloseInfo}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -176,19 +217,22 @@ export function Phase12Demo() {
             <h3 className="text-lg font-semibold text-blue-800 mb-2">
               🎯 How to Use
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-blue-700">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm text-blue-700">
               <div>
-                <strong>1. Browse Foods:</strong> Use category filters to find specific food types for Sophie.
+                <strong>1. Browse Foods:</strong> Click food blocks to see details and nutrition info.
               </div>
               <div>
-                <strong>2. Drag & Drop:</strong> Drag food blocks from the left panel into the meal area.
+                <strong>2. Drag & Drop:</strong> Drag food blocks into the canvas to create Sophie's meal.
               </div>
               <div>
-                <strong>3. Adjust Portions:</strong> Click portion buttons (½, 1, 1.5, 2x) to control serving sizes.
+                <strong>3. Auto-Connect:</strong> Blocks snap to grid and connect automatically when near each other.
+              </div>
+              <div>
+                <strong>4. Adjust Portions:</strong> Use portion buttons (½, 1, 1.5, 2x) to control serving sizes.
               </div>
             </div>
             <div className="mt-3 text-sm text-blue-600">
-              <strong>✨ Smart Features:</strong> Duplicate foods increase portion size automatically • Real-time nutrition tracking • Age-appropriate recommendations
+              <strong>✨ Smart Features:</strong> No overlapping blocks • Grid snapping • Diagram-style connections • Real-time nutrition tracking • ADHD-friendly design
             </div>
           </div>
         </div>
