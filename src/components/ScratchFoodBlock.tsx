@@ -13,6 +13,7 @@ interface ScratchFoodBlockProps {
   onClick?: () => void;
   portionSize?: number;
   onPortionChange?: (newSize: number) => void;
+  blockId?: string;
 }
 
 // Simple food category icons using emoji
@@ -39,8 +40,14 @@ export function ScratchFoodBlock({
   isSelected = false,
   onClick,
   portionSize = 1,
-  onPortionChange
+  onPortionChange,
+  blockId
 }: ScratchFoodBlockProps) {
+  const [dragState, setDragState] = React.useState<{
+    isDragging: boolean;
+    startPos: { x: number; y: number } | null;
+    startTime: number | null;
+  }>({ isDragging: false, startPos: null, startTime: null });
   
   const {
     attributes,
@@ -48,12 +55,14 @@ export function ScratchFoodBlock({
     setNodeRef,
     transform,
   } = useDraggable({
-    id: `scratch-${food.fdcId}`,
+    id: isPlaced ? `placed-${blockId}` : `scratch-${food.fdcId}`,
     data: {
-      type: 'scratch-food',
-      food: food
+      type: isPlaced ? 'placed-food' : 'scratch-food',
+      food: food,
+      isPlaced: isPlaced,
+      blockId: blockId
     },
-    disabled: isPlaced
+    disabled: false // Always allow dragging
   });
 
   const categoryColor = categoryColors[food.category];
@@ -123,31 +132,55 @@ export function ScratchFoodBlock({
     <div
       ref={setNodeRef}
       style={style}
-      {...(isPlaced ? {} : { ...listeners, ...attributes })}
+      {...listeners}
+      {...attributes}
+      onMouseDown={(e) => {
+        if (!isPlaced) {
+          setDragState({
+            isDragging: true,
+            startPos: { x: e.clientX, y: e.clientY },
+            startTime: Date.now()
+          });
+        }
+      }}
+      onMouseUp={(e) => {
+        if (!isPlaced && dragState.startPos && dragState.startTime) {
+          const endTime = Date.now();
+          const distance = Math.sqrt(
+            Math.pow(e.clientX - dragState.startPos.x, 2) + 
+            Math.pow(e.clientY - dragState.startPos.y, 2)
+          );
+          const duration = endTime - dragState.startTime;
+          
+          // Only trigger click if it was a quick, short movement (not a drag)
+          if (duration < 300 && distance < 10) {
+            console.log('Sidebar block clicked (not dragged):', food.name);
+            if (onClick) {
+              onClick();
+            }
+          }
+        }
+        setDragState({ isDragging: false, startPos: null, startTime: null });
+      }}
       onClick={(e) => {
-        // Only handle click for placed blocks or stop propagation for draggable ones
+        // Only handle click for placed blocks
         if (isPlaced) {
           e.preventDefault();
           e.stopPropagation();
-          console.log('Placed block clicked:', food.name); // Debug log
-          if (onClick) {
-            onClick();
-          }
-        } else {
-          // For draggable blocks, allow the click but don't interfere with drag
-          console.log('Sidebar block clicked:', food.name); // Debug log
+          console.log('Placed block clicked:', food.name);
           if (onClick) {
             onClick();
           }
         }
+        // For non-placed blocks, clicks are handled in onMouseUp to distinguish from drags
       }}
       className={`
         relative cursor-pointer select-none
         transition-all duration-200
         ${isDragging ? 'opacity-50' : ''}
         ${isSelected ? 'ring-4 ring-blue-400 ring-offset-2 rounded-lg' : ''}
-        ${!isPlaced && !isDragging ? 'hover:scale-[1.02]' : ''}
-        ${isPlaced ? 'cursor-default' : 'cursor-grab active:cursor-grabbing'}
+        ${!isDragging ? 'hover:scale-[1.02]' : ''}
+        ${isPlaced ? 'cursor-move' : 'cursor-grab active:cursor-grabbing'}
       `}
     >
       {/* Scratch-style block SVG */}

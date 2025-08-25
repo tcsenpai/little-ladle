@@ -21,11 +21,11 @@ interface PlacedBlock {
   connectedTo: string[];
 }
 
-// Grid-based system - no overlaps possible
-const GRID_COLS = 6;
-const GRID_ROWS = 4;
-const CELL_WIDTH = 120;
-const CELL_HEIGHT = 100;
+// Grid-based system - no overlaps possible  
+const GRID_COLS = 8;
+const GRID_ROWS = 6;
+const CELL_WIDTH = 110;
+const CELL_HEIGHT = 90;
 
 export function ScratchDemo() {
   const [placedBlocks, setPlacedBlocks] = useState<PlacedBlock[]>([]);
@@ -112,9 +112,12 @@ export function ScratchDemo() {
       return;
     }
 
-    if (active.data.current?.type === 'scratch-food') {
-      const food = active.data.current.food as Food;
-      console.log('Dropping food:', food.name); // Debug log
+    const dragData = active.data.current;
+    
+    if (dragData?.type === 'scratch-food') {
+      // Adding new block from sidebar
+      const food = dragData.food as Food;
+      console.log('Dropping new food:', food.name); // Debug log
       
       // Get canvas dimensions (more accurate)
       const canvasElement = document.querySelector('[data-droppable-id="scratch-canvas"]');
@@ -167,6 +170,68 @@ export function ScratchDemo() {
       
       console.log('Adding block at grid position:', freeCell, 'pixels:', { x, y }); // Debug log
       setPlacedBlocks(prev => [...prev, newBlock]);
+      
+    } else if (dragData?.type === 'placed-food') {
+      // Repositioning existing block
+      const blockId = dragData.blockId as string;
+      const food = dragData.food as Food;
+      console.log('Repositioning block:', food.name, 'ID:', blockId);
+      
+      // Get canvas dimensions
+      const canvasElement = document.querySelector('[data-droppable-id="scratch-canvas"]');
+      const canvasRect = canvasElement?.getBoundingClientRect();
+      const mouseX = event.activatorEvent?.clientX || 0;
+      const mouseY = event.activatorEvent?.clientY || 0;
+      const canvasLeft = canvasRect?.left || 0;
+      const canvasTop = canvasRect?.top || 0;
+      
+      let x = mouseX - canvasLeft - (CELL_WIDTH / 2);
+      let y = mouseY - canvasTop - (CELL_HEIGHT / 2);
+      
+      // Find the existing block to free its cell
+      const existingBlock = placedBlocks.find(b => b.id === blockId);
+      if (existingBlock) {
+        const oldCol = Math.floor(existingBlock.x / CELL_WIDTH);
+        const oldRow = Math.floor(existingBlock.y / CELL_HEIGHT);
+        console.log('Freeing old position:', { row: oldRow, col: oldCol });
+      }
+      
+      // Find new free cell
+      const freeCell = findNearestFreeCell(x, y);
+      if (!freeCell) {
+        console.log('No free cells available for repositioning!');
+        return;
+      }
+      
+      console.log('Found new position:', freeCell);
+      const position = gridToPixels(freeCell.row, freeCell.col);
+      
+      // Update grid occupancy - free old cell, occupy new cell
+      setGridOccupied(prev => {
+        const newGrid = prev.map(row => [...row]);
+        // Free old position
+        if (existingBlock) {
+          const oldCol = Math.floor(existingBlock.x / CELL_WIDTH);
+          const oldRow = Math.floor(existingBlock.y / CELL_HEIGHT);
+          if (oldRow >= 0 && oldRow < GRID_ROWS && oldCol >= 0 && oldCol < GRID_COLS) {
+            newGrid[oldRow][oldCol] = false;
+          }
+        }
+        // Occupy new position
+        newGrid[freeCell.row][freeCell.col] = true;
+        return newGrid;
+      });
+      
+      // Update block position
+      setPlacedBlocks(prev => 
+        prev.map(block => 
+          block.id === blockId 
+            ? { ...block, x: position.x, y: position.y }
+            : block
+        )
+      );
+      
+      console.log('Repositioned block to grid position:', freeCell, 'pixels:', position);
     }
   };
 
@@ -225,14 +290,14 @@ export function ScratchDemo() {
 
   const getCanvasClasses = () => {
     if (isMobile) return "col-span-1";
-    if (isTablet) return "col-span-4";
-    return "col-span-7";
+    if (isTablet) return "col-span-5";
+    return "col-span-8";
   };
 
   const getInfoClasses = () => {
     if (isMobile) return "col-span-1";
-    if (isTablet) return "col-span-2";
-    return "col-span-3";
+    if (isTablet) return "col-span-3";
+    return "col-span-2";
   };
 
   return (
@@ -299,11 +364,6 @@ export function ScratchDemo() {
                       <div 
                         key={food.fdcId} 
                         className="flex justify-center"
-                        onClick={(e) => {
-                          console.log('Food div clicked:', food.name); // Debug log
-                          e.stopPropagation();
-                          handleFoodClick(food);
-                        }}
                       >
                         <ScratchFoodBlock
                           food={food}

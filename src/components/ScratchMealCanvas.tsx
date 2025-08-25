@@ -144,6 +144,7 @@ export function ScratchMealCanvas({
                     }
                   }}
                   isSelected={selectedFood?.fdcId === block.food.fdcId}
+                  blockId={block.id}
                 />
                 
                 {/* Remove button */}

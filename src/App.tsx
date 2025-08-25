@@ -1,9 +1,9 @@
 import React from 'react';
-import { ScratchDemo } from './components/ScratchDemo';
+import { SimpleMealBuilder } from './components/SimpleMealBuilder';
 import './styles/index.css';
 
 function App() {
-  return <ScratchDemo />;
+  return <SimpleMealBuilder />;
 }
 
 export default App;
