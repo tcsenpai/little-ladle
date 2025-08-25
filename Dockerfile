@@ -27,5 +27,5 @@ USER appuser
 # Expose port
 EXPOSE 3000
 
-# Serve the built application with Bun
-CMD ["bun", "run", "preview", "--host", "0.0.0.0", "--port", "3000"]
+# Run our custom server
+CMD ["bun", "run", "server.ts"]

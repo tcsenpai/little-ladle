@@ -25,6 +25,7 @@ import { useMobileResponsive } from '../hooks/useMobileResponsive';
 
 // Import constants
 import { MEAL_CONFIG, STORAGE_KEYS, ServingSize } from '../constants/config';
+import { dataService } from '../services/dataService';
 
 export function SimpleMealBuilder() {
   // Use custom hooks for better organization
@@ -42,14 +43,13 @@ export function SimpleMealBuilder() {
   const [childProfiles, setChildProfiles] = useState<ChildProfile[]>([]);
   const [activeChildProfile, setActiveChildProfile] = useState<ChildProfile | null>(null);
 
-  // Load child profiles from localStorage on mount
+  // Load child profiles from server on mount
   useEffect(() => {
-    const savedProfiles = localStorage.getItem(STORAGE_KEYS.CHILD_PROFILE);
-    const savedActiveId = localStorage.getItem('pappobot-active-child-id');
-    
-    if (savedProfiles) {
+    const loadProfiles = async () => {
       try {
-        const profiles = JSON.parse(savedProfiles);
+        const profiles = await dataService.getChildProfiles();
+        const savedActiveId = await dataService.getPreference('active-child-id');
+        
         setChildProfiles(profiles);
         
         if (savedActiveId && profiles.length > 0) {
@@ -61,7 +61,9 @@ export function SimpleMealBuilder() {
       } catch (error) {
         console.error('Failed to load child profiles:', error);
       }
-    }
+    };
+    
+    loadProfiles();
   }, []);
 
   // No need to filter here anymore - FoodBrowsePanel handles filtering internally
@@ -130,7 +132,7 @@ export function SimpleMealBuilder() {
     closeModal();
   }, [closeModal]);
 
-  const handleSaveChildProfile = useCallback((profile: ChildProfile) => {
+  const handleSaveChildProfile = useCallback(async (profile: ChildProfile) => {
     setChildProfiles(prev => {
       const existing = prev.find(p => p.id === profile.id);
       let newProfiles;
@@ -143,18 +145,19 @@ export function SimpleMealBuilder() {
         newProfiles = [...prev, profile];
       }
       
-      localStorage.setItem('pappobot-child-profiles', JSON.stringify(newProfiles));
+      // Save to server
+      dataService.saveChildProfiles(newProfiles);
       return newProfiles;
     });
     
     setActiveChildProfile(profile);
-    localStorage.setItem('pappobot-active-child-id', profile.id);
+    await dataService.setPreference('active-child-id', profile.id);
     console.log('Saved child profile:', profile.name);
   }, []);
   
-  const handleSelectChildProfile = useCallback((profile: ChildProfile) => {
+  const handleSelectChildProfile = useCallback(async (profile: ChildProfile) => {
     setActiveChildProfile(profile);
-    localStorage.setItem('pappobot-active-child-id', profile.id);
+    await dataService.setPreference('active-child-id', profile.id);
     console.log('Selected child profile:', profile.name);
   }, []);
 

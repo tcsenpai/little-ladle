@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { dataService } from '../services/dataService';
 
 interface DarkModeContextType {
   isDarkMode: boolean;
@@ -23,15 +24,19 @@ export function DarkModeProvider({ children }: DarkModeProviderProps) {
   const [isDarkMode, setIsDarkMode] = useState(false);
 
   useEffect(() => {
-    // Check for saved preference in localStorage
-    const savedMode = localStorage.getItem('pappobot-dark-mode');
-    if (savedMode) {
-      setIsDarkMode(JSON.parse(savedMode));
-    } else {
-      // Check system preference
-      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      setIsDarkMode(systemPrefersDark);
-    }
+    // Check for saved preference on server
+    const loadDarkMode = async () => {
+      const savedMode = await dataService.getPreference('dark-mode');
+      if (savedMode !== null) {
+        setIsDarkMode(savedMode);
+      } else {
+        // Check system preference
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        setIsDarkMode(systemPrefersDark);
+      }
+    };
+    
+    loadDarkMode();
   }, []);
 
   useEffect(() => {
@@ -43,10 +48,10 @@ export function DarkModeProvider({ children }: DarkModeProviderProps) {
     }
   }, [isDarkMode]);
 
-  const toggleDarkMode = () => {
+  const toggleDarkMode = async () => {
     const newMode = !isDarkMode;
     setIsDarkMode(newMode);
-    localStorage.setItem('pappobot-dark-mode', JSON.stringify(newMode));
+    await dataService.setPreference('dark-mode', newMode);
   };
 
   return (
