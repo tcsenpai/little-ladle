@@ -1,8 +1,9 @@
 import { Food } from '../types/food';
 import sophieFoodsJson from './sophie_foods.json';
+import { dataService } from '../services/dataService';
 
 // Transform the JSON data into our Food interface
-export const foods: Food[] = sophieFoodsJson.foods.map(food => ({
+const baseFoods: Food[] = sophieFoodsJson.foods.map(food => ({
   fdcId: food.fdcId,
   name: food.name,
   shortName: food.shortName,
@@ -10,6 +11,50 @@ export const foods: Food[] = sophieFoodsJson.foods.map(food => ({
   nutrients: food.nutrients,
   ageGroup: food.ageGroup as Food['ageGroup']
 }));
+
+// Dynamic foods array that includes custom foods
+let allFoods: Food[] = baseFoods;
+let customFoodsCache: Food[] = [];
+
+// Load custom foods and merge with base foods
+export const loadAllFoods = async (): Promise<Food[]> => {
+  try {
+    const customFoods = await dataService.getCustomFoods();
+    customFoodsCache = customFoods;
+    
+    // Merge base foods with custom foods (custom foods can override base foods by fdcId)
+    const customFoodIds = new Set(customFoods.map(f => f.fdcId));
+    const filteredBaseFoods = baseFoods.filter(f => !customFoodIds.has(f.fdcId));
+    
+    allFoods = [...filteredBaseFoods, ...customFoods];
+    return allFoods;
+  } catch (error) {
+    console.error('Failed to load custom foods:', error);
+    allFoods = baseFoods;
+    return allFoods;
+  }
+};
+
+// Get all foods (base + custom)
+export const getAllFoods = (): Food[] => allFoods;
+
+// Export foods with getter that always returns current state
+export const foods = new Proxy({} as Food[], {
+  get: (target, prop) => {
+    if (prop === 'length') return allFoods.length;
+    if (prop === Symbol.iterator) return () => allFoods[Symbol.iterator]();
+    if (typeof prop === 'string' && !isNaN(Number(prop))) {
+      return allFoods[Number(prop)];
+    }
+    if (typeof prop === 'string' && prop in Array.prototype) {
+      const method = allFoods[prop as keyof Food[]];
+      if (typeof method === 'function') {
+        return method.bind(allFoods);
+      }
+    }
+    return (allFoods as any)[prop];
+  }
+});
 
 // Get foods by category for easy access
 export const getFoodsByCategory = (category: Food['category']) => 

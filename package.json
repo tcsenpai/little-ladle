@@ -1,5 +1,5 @@
 {
-  "name": "pappobot",
+  "name": "little-ladle",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -7,9 +7,12 @@
     "doc": "docs"
   },
   "scripts": {
-    "dev": "vite",
+    "dev": "./run-dev.sh",
+    "dev:api": "NODE_ENV=development bun run server.ts",
+    "dev:frontend": "vite",
     "build": "vite build",
     "preview": "vite preview",
+    "server": "bun run server.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],

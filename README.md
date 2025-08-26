@@ -1,4 +1,4 @@
-# PappoBot
+# Little Ladle
 
 A modern React application for baby-led weaning and complementary feeding guidance, following WHO/FAO guidelines.
 

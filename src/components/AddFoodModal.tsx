@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Food } from '../types/food';
+import { dataService } from '../services/dataService';
+import { loadAllFoods } from '../data/foodData';
 
 interface SearchResult {
   fdcId: number;
@@ -142,7 +144,7 @@ export function AddFoodModal({ isOpen, onClose, onAddFood }: AddFoodModalProps) 
     fetchFoodDetails(food.fdcId);
   };
 
-  const handleConfirmAdd = () => {
+  const handleConfirmAdd = async () => {
     if (!selectedFood || !foodDetails) return;
 
     const processedFood: Food = {
@@ -154,7 +156,15 @@ export function AddFoodModal({ isOpen, onClose, onAddFood }: AddFoodModalProps) 
       ageGroup: '8+ months' // Default for manually added foods
     };
 
-    onAddFood(processedFood);
+    // Save to custom foods database
+    try {
+      await dataService.saveCustomFood(processedFood);
+      console.log('Custom food saved and added to global database:', processedFood.name);
+    } catch (error) {
+      console.error('Failed to save custom food:', error);
+    }
+
+    onAddFood(processedFood); // Parent will handle refreshing the food list
     handleClose();
   };
 
@@ -209,10 +219,13 @@ export function AddFoodModal({ isOpen, onClose, onAddFood }: AddFoodModalProps) 
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="e.g., chicken breast, broccoli, apple..."
+                placeholder="e.g., chicken breast, broccoli, apple, yolk..."
                 className="w-full px-4 py-3 rounded-xl border-2 border-gray-300 focus:border-emerald-500 focus:outline-none text-lg"
                 autoFocus
               />
+              <p className="text-xs text-gray-500 mt-2">
+                ✨ Custom foods you add will be searchable here after saving
+              </p>
             </div>
 
             {/* Error Display */}
@@ -314,7 +327,7 @@ export function AddFoodModal({ isOpen, onClose, onAddFood }: AddFoodModalProps) 
                     onClick={handleConfirmAdd}
                     className="w-full py-4 bg-gradient-to-r from-emerald-500 to-sky-500 hover:from-emerald-600 hover:to-sky-600 text-white font-black text-lg rounded-xl transition-all duration-300 transform hover:scale-105 shadow-xl hover:shadow-2xl"
                   >
-                    ✅ Add to Sophie's Foods
+                    ✅ Add to Food Database
                   </button>
                 </div>
               </>

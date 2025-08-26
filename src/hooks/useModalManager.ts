@@ -5,7 +5,9 @@ export type ModalType =
   | 'childProfile' 
   | 'autoChef' 
   | 'quickStart' 
-  | 'editProfile' 
+  | 'editProfile'
+  | 'recipes'
+  | 'mealHistory'
   | null;
 
 export const useModalManager = () => {

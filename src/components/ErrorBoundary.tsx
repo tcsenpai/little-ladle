@@ -77,7 +77,7 @@ const DefaultErrorFallback: React.FC<ErrorFallbackProps> = ({ error, resetError 
             Oops! Something went wrong
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mb-6">
-            PappoBot encountered an unexpected error. Don't worry - your meal data is safe!
+            Little Ladle encountered an unexpected error. Don't worry - your meal data is safe!
           </p>
         </div>
 

@@ -1,6 +1,6 @@
 // Data service for server-side persistence
 class DataService {
-  private baseUrl = window.location.origin;
+  private baseUrl = import.meta.env.DEV ? 'http://localhost:3001' : window.location.origin;
 
   // Child Profiles
   async getChildProfiles(): Promise<any[]> {
@@ -79,6 +79,119 @@ class DataService {
       return result.success;
     } catch (error) {
       console.error('Error saving meal history:', error);
+      return false;
+    }
+  }
+
+  // Recipes API
+  async getRecipes(): Promise<any[]> {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/recipes`);
+      if (!response.ok) throw new Error('Failed to fetch recipes');
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching recipes:', error);
+      return [];
+    }
+  }
+
+  async saveRecipe(recipe: any): Promise<any | null> {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/recipes`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(recipe),
+      });
+      const result = await response.json();
+      return result.success ? result.recipe : null;
+    } catch (error) {
+      console.error('Error saving recipe:', error);
+      return null;
+    }
+  }
+
+  async deleteRecipe(id: string): Promise<boolean> {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/recipes`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      });
+      const result = await response.json();
+      return result.success;
+    } catch (error) {
+      console.error('Error deleting recipe:', error);
+      return false;
+    }
+  }
+
+  // Custom Foods API
+  async getCustomFoods(): Promise<any[]> {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/custom-foods`);
+      if (!response.ok) throw new Error('Failed to fetch custom foods');
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching custom foods:', error);
+      return [];
+    }
+  }
+
+  async saveCustomFood(food: any): Promise<any | null> {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/custom-foods`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(food),
+      });
+      const result = await response.json();
+      return result.success ? result.food : null;
+    } catch (error) {
+      console.error('Error saving custom food:', error);
+      return null;
+    }
+  }
+
+  async deleteCustomFood(fdcId: number): Promise<boolean> {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/custom-foods`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fdcId }),
+      });
+      const result = await response.json();
+      return result.success;
+    } catch (error) {
+      console.error('Error deleting custom food:', error);
+      return false;
+    }
+  }
+
+  // Current meal state (auto-save)
+  async getCurrentMeal(): Promise<any[]> {
+    try {
+      const preferences = await this.getUserPreferences();
+      return preferences['current-meal'] || [];
+    } catch (error) {
+      console.error('Error getting current meal:', error);
+      return [];
+    }
+  }
+
+  async saveCurrentMeal(mealFoods: any[]): Promise<boolean> {
+    try {
+      return await this.setPreference('current-meal', mealFoods);
+    } catch (error) {
+      console.error('Error saving current meal:', error);
+      return false;
+    }
+  }
+
+  async clearCurrentMeal(): Promise<boolean> {
+    try {
+      return await this.setPreference('current-meal', []);
+    } catch (error) {
+      console.error('Error clearing current meal:', error);
       return false;
     }
   }

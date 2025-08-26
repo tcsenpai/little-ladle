@@ -61,6 +61,13 @@ Thumbs.db
 # Temporary folders
 tmp/
 temp/
+
+# Local development data
+data-local/
+
+# Personal baby data and meal files
+baby_data_*
+favorite_meal_*
 APP_PHASES.md
 CLAUDE.md
 APP_PLAN.md

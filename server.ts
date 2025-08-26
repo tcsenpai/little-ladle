@@ -2,9 +2,11 @@ import { serve } from "bun";
 import { existsSync, mkdirSync } from "fs";
 import * as path from "path";
 
-const PORT = process.env.PORT || 3000;
-const DATA_DIR = "/app/data";
-const STATIC_DIR = "/app/dist";
+// Environment detection
+const isDevelopment = process.env.NODE_ENV === "development" || !existsSync("./dist");
+const PORT = isDevelopment ? 3001 : (process.env.PORT || 3000);
+const DATA_DIR = isDevelopment ? "./data-local" : (process.env.DATA_DIR || "./data");
+const STATIC_DIR = "./dist";
 
 // Ensure data directory exists
 if (!existsSync(DATA_DIR)) {
@@ -12,9 +14,11 @@ if (!existsSync(DATA_DIR)) {
 }
 
 // Data file paths
-const CHILD_PROFILES_FILE = path.join(DATA_DIR, "child-profiles.json");
-const USER_PREFERENCES_FILE = path.join(DATA_DIR, "user-preferences.json");
-const MEAL_HISTORY_FILE = path.join(DATA_DIR, "meal-history.json");
+const CHILD_PROFILES_FILE = path.join(DATA_DIR, "baby_data_child-profiles.json");
+const USER_PREFERENCES_FILE = path.join(DATA_DIR, "baby_data_user-preferences.json");
+const MEAL_HISTORY_FILE = path.join(DATA_DIR, "baby_data_meal-history.json");
+const RECIPES_FILE = path.join(DATA_DIR, "favorite_meal_recipes.json");
+const CUSTOM_FOODS_FILE = path.join(DATA_DIR, "baby_data_custom-foods.json");
 
 // Helper functions for file operations
 async function readJsonFile(filePath: string, defaultValue: any = null) {
@@ -41,11 +45,21 @@ async function writeJsonFile(filePath: string, data: any) {
 }
 
 // CORS headers for React app
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-  "Access-Control-Allow-Headers": "Content-Type",
-};
+function getCorsHeaders(origin: string | null) {
+  const allowedOrigins = [
+    /^http:\/\/localhost:\d+$/,  // Any localhost port
+    /^https:\/\/localhost:\d+$/, // HTTPS localhost
+    /^https?:\/\/.*\.tcsenpai\.com$/, // Any subdomain of tcsenpai.com
+  ];
+  
+  const isAllowed = origin && allowedOrigins.some(pattern => pattern.test(origin));
+  
+  return {
+    "Access-Control-Allow-Origin": isAllowed ? origin : "*",
+    "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+  };
+}
 
 // Server
 const server = serve({
@@ -53,6 +67,8 @@ const server = serve({
   async fetch(request) {
     const url = new URL(request.url);
     const method = request.method;
+    const origin = request.headers.get("origin");
+    const corsHeaders = getCorsHeaders(origin);
 
     // Handle CORS preflight
     if (method === "OPTIONS") {
@@ -119,6 +135,86 @@ const server = serve({
         }
       }
 
+      // Recipes API
+      if (url.pathname === "/api/recipes") {
+        if (method === "GET") {
+          const recipes = await readJsonFile(RECIPES_FILE, []);
+          return new Response(JSON.stringify(recipes), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        
+        if (method === "POST") {
+          const recipe = await request.json();
+          const recipes = await readJsonFile(RECIPES_FILE, []);
+          recipe.id = Date.now().toString(); // Simple ID generation
+          recipe.createdAt = new Date().toISOString();
+          recipes.push(recipe);
+          const success = await writeJsonFile(RECIPES_FILE, recipes);
+          return new Response(JSON.stringify({ success, recipe }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: success ? 200 : 500,
+          });
+        }
+        
+        if (method === "DELETE") {
+          const { id } = await request.json();
+          const recipes = await readJsonFile(RECIPES_FILE, []);
+          const filteredRecipes = recipes.filter((r: any) => r.id !== id);
+          const success = await writeJsonFile(RECIPES_FILE, filteredRecipes);
+          return new Response(JSON.stringify({ success }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: success ? 200 : 500,
+          });
+        }
+      }
+
+      // Custom Foods API
+      if (url.pathname === "/api/custom-foods") {
+        if (method === "GET") {
+          const customFoods = await readJsonFile(CUSTOM_FOODS_FILE, []);
+          return new Response(JSON.stringify(customFoods), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+          });
+        }
+        
+        if (method === "POST") {
+          const customFood = await request.json();
+          const customFoods = await readJsonFile(CUSTOM_FOODS_FILE, []);
+          
+          // Check if food already exists (by fdcId or name)
+          const existingIndex = customFoods.findIndex((f: any) => 
+            f.fdcId === customFood.fdcId || f.name === customFood.name
+          );
+          
+          if (existingIndex >= 0) {
+            // Update existing food
+            customFoods[existingIndex] = { ...customFood, updatedAt: new Date().toISOString() };
+          } else {
+            // Add new food
+            customFood.addedAt = new Date().toISOString();
+            customFoods.push(customFood);
+          }
+          
+          const success = await writeJsonFile(CUSTOM_FOODS_FILE, customFoods);
+          return new Response(JSON.stringify({ success, food: customFood }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: success ? 200 : 500,
+          });
+        }
+        
+        if (method === "DELETE") {
+          const { fdcId } = await request.json();
+          const customFoods = await readJsonFile(CUSTOM_FOODS_FILE, []);
+          const filteredFoods = customFoods.filter((f: any) => f.fdcId !== fdcId);
+          const success = await writeJsonFile(CUSTOM_FOODS_FILE, filteredFoods);
+          return new Response(JSON.stringify({ success }), {
+            headers: { ...corsHeaders, "Content-Type": "application/json" },
+            status: success ? 200 : 500,
+          });
+        }
+      }
+
       // API route not found
       return new Response("API endpoint not found", { 
         status: 404,
@@ -126,7 +222,15 @@ const server = serve({
       });
     }
 
-    // Serve static files (React app)
+    // In development mode, don't serve static files - let Vite handle that
+    if (isDevelopment) {
+      return new Response("Development API server - use Vite for frontend", { 
+        status: 404,
+        headers: corsHeaders 
+      });
+    }
+
+    // Serve static files (React app) in production
     const filePath = url.pathname === "/" ? "/index.html" : url.pathname;
     const fullPath = path.join(STATIC_DIR, filePath);
     
@@ -183,6 +287,12 @@ function getContentType(filePath: string): string {
   return contentTypes[ext] || 'text/plain';
 }
 
-console.log(`🚀 PappoBot server running at http://localhost:${PORT}`);
-console.log(`📁 Data directory: ${DATA_DIR}`);
-console.log(`📂 Static files: ${STATIC_DIR}`);
+if (isDevelopment) {
+  console.log(`🚀 Little Ladle API server (dev) running at http://localhost:${PORT}`);
+  console.log(`📁 Data directory: ${DATA_DIR}`);
+  console.log(`🔗 Connect from Vite dev server at http://localhost:5173 or 3000`);
+} else {
+  console.log(`🚀 Little Ladle server (prod) running at http://localhost:${PORT}`);
+  console.log(`📁 Data directory: ${DATA_DIR}`);
+  console.log(`📂 Static files: ${STATIC_DIR}`);
+}

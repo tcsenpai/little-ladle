@@ -1,6 +1,7 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { MealFood, Food } from '../types/food';
 import { MEAL_CONFIG } from '../constants/config';
+import { dataService } from '../services/dataService';
 
 export const useMealManagement = () => {
   const [mealFoods, setMealFoods] = useState<MealFood[]>([]);
@@ -51,6 +52,16 @@ export const useMealManagement = () => {
     setMealFoods(prev => [duplicated, ...prev]);
   }, []);
 
+  const loadRecipe = useCallback((foods: MealFood[]) => {
+    // Generate new IDs for loaded foods to avoid conflicts
+    const newFoods = foods.map(food => ({
+      ...food,
+      id: `${food.food.fdcId}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      addedAt: Date.now(),
+    }));
+    setMealFoods(newFoods);
+  }, []);
+
   return {
     mealFoods,
     addFood,
@@ -58,6 +69,7 @@ export const useMealManagement = () => {
     updateServingSize,
     clearMeal,
     duplicateFood,
+    loadRecipe,
     mealCount: mealFoods.length,
   };
 };

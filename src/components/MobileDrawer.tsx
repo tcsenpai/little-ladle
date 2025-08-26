@@ -5,8 +5,10 @@ interface MobileDrawerProps {
   isOpen: boolean;
   onClose: () => void;
   onQuickStart: () => void;
+  onRecipes: () => void;
   onAutoChef: () => void;
   onAddFood: () => void;
+  onMealHistory: () => void;
   childProfile: ChildProfile | null;
   onCreateProfile: () => void;
   onEditProfile: () => void;
@@ -16,8 +18,10 @@ export function MobileDrawer({
   isOpen,
   onClose,
   onQuickStart,
+  onRecipes,
   onAutoChef,
   onAddFood,
+  onMealHistory,
   childProfile,
   onCreateProfile,
   onEditProfile
@@ -43,7 +47,7 @@ export function MobileDrawer({
                 <span className="text-xl">🍽️</span>
               </div>
               <div>
-                <h2 className="text-lg font-bold">PappoBot</h2>
+                <h2 className="text-lg font-bold">Little Ladle</h2>
                 <p className="text-xs text-white/80">Mobile Menu</p>
               </div>
             </div>
@@ -131,6 +135,40 @@ export function MobileDrawer({
               <div className="text-left flex-1">
                 <div className="font-bold">Quick-Start Templates</div>
                 <div className="text-xs text-white/80">Age-appropriate meal ideas</div>
+              </div>
+            </button>
+
+            {/* Recipes */}
+            <button
+              onClick={() => {
+                onRecipes();
+                onClose();
+              }}
+              className="w-full flex items-center space-x-4 p-4 bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 text-white rounded-xl transition-all duration-200 transform active:scale-95 shadow-md"
+            >
+              <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                <span className="text-lg">📖</span>
+              </div>
+              <div className="text-left flex-1">
+                <div className="font-bold">Saved Recipes</div>
+                <div className="text-xs text-white/80">Save and load meal combinations</div>
+              </div>
+            </button>
+
+            {/* Meal History */}
+            <button
+              onClick={() => {
+                onMealHistory();
+                onClose();
+              }}
+              className="w-full flex items-center space-x-4 p-4 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white rounded-xl transition-all duration-200 transform active:scale-95 shadow-md"
+            >
+              <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center">
+                <span className="text-lg">📊</span>
+              </div>
+              <div className="text-left flex-1">
+                <div className="font-bold">Meal History</div>
+                <div className="text-xs text-white/80">View and load past meals</div>
               </div>
             </button>
 

@@ -7,7 +7,9 @@ import { ChildProfileModal } from './ChildProfileModal';
 import { ChildProfileBar } from './ChildProfileBar';
 import { WHOCompliancePanel } from './WHOCompliancePanel';
 import { AutoChefModal } from './AutoChefModal';
-import { foods, getFoodsByCategory } from '../data/foodData';
+import { RecipesModal } from './RecipesModal';
+import { MealHistoryModal } from './MealHistoryModal';
+import { foods, getFoodsByCategory, loadAllFoods } from '../data/foodData';
 import { Food } from '../types/food';
 import { ChildProfile } from '../types/child';
 import { MealFood } from '../utils/whoCompliance';
@@ -29,7 +31,7 @@ import { dataService } from '../services/dataService';
 
 export function SimpleMealBuilder() {
   // Use custom hooks for better organization
-  const { mealFoods, addFood, removeFood, updateServingSize, clearMeal } = useMealManagement();
+  const { mealFoods, addFood, removeFood, updateServingSize, clearMeal, loadRecipe } = useMealManagement();
   const { activeModal, openModal, closeModal, isModalOpen } = useModalManager();
   const { selectedSize, getCurrentSize, selectServingSize, servingOptions } = useServingSize();
   const { isMobile, isMobileDrawerOpen, openMobileDrawer, closeMobileDrawer } = useMobileResponsive();
@@ -63,7 +65,17 @@ export function SimpleMealBuilder() {
       }
     };
     
-    loadProfiles();
+    const loadData = async () => {
+      await Promise.all([
+        loadProfiles(),
+        (async () => {
+          const allFoods = await loadAllFoods(); // Load all foods including custom ones
+          setAvailableFoods(allFoods); // Update state with loaded foods
+        })()
+      ]);
+    };
+    
+    loadData();
   }, []);
 
   // No need to filter here anymore - FoodBrowsePanel handles filtering internally
@@ -125,12 +137,21 @@ export function SimpleMealBuilder() {
     clearMeal();
   }, [clearMeal]);
 
-  const handleAddNewFood = useCallback((food: Food) => {
-    // Add to the dynamic food list
-    setAvailableFoods(prev => [...prev, food]);
+  const refreshAvailableFoods = useCallback(async () => {
+    try {
+      const allFoods = await loadAllFoods();
+      setAvailableFoods(allFoods);
+      console.log('Refreshed available foods, total count:', allFoods.length);
+    } catch (error) {
+      console.error('Failed to refresh available foods:', error);
+    }
+  }, []);
+
+  const handleAddNewFood = useCallback(async (food: Food) => {
     console.log('Added new food to database:', food.name);
+    await refreshAvailableFoods(); // Refresh from server to get the complete merged list
     closeModal();
-  }, [closeModal]);
+  }, [closeModal, refreshAvailableFoods]);
 
   const handleSaveChildProfile = useCallback(async (profile: ChildProfile) => {
     try {
@@ -229,6 +250,48 @@ export function SimpleMealBuilder() {
     }
   }, [mealFoods.length, clearMeal, addFood]);
 
+  const saveMealToHistory = useCallback(async () => {
+    if (!activeChildProfile || mealFoods.length === 0) {
+      return;
+    }
+
+    try {
+      // Calculate total calories
+      const totalCalories = mealFoods.reduce((total, mealFood) => {
+        const calories = mealFood.food.nutrients?.calories?.amount || 0;
+        return total + (calories * mealFood.servingGrams / 100);
+      }, 0);
+
+      // Create meal history entry
+      const mealHistoryEntry = {
+        id: `meal-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        childId: activeChildProfile.id,
+        childName: activeChildProfile.name,
+        date: new Date().toISOString(),
+        foods: mealFoods,
+        totalCalories,
+        createdAt: new Date().toISOString(),
+      };
+
+      // Get existing history and add new entry
+      const history = await dataService.getMealHistory();
+      history.push(mealHistoryEntry);
+      
+      // Save updated history
+      const success = await dataService.saveMealHistory(history);
+      
+      if (success) {
+        console.log('Meal saved to history:', mealHistoryEntry);
+        // Optionally clear the meal after saving
+        clearMeal();
+      } else {
+        console.error('Failed to save meal to history');
+      }
+    } catch (error) {
+      console.error('Error saving meal to history:', error);
+    }
+  }, [activeChildProfile, mealFoods, clearMeal]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-orange-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 transition-colors duration-300">
       {/* Mobile-First Responsive Header */}
@@ -243,7 +306,7 @@ export function SimpleMealBuilder() {
               </div>
               <div className="hidden sm:block">
                 <h1 className="text-lg md:text-2xl font-bold text-gray-900 dark:text-white tracking-tight transition-colors duration-300">
-                  PappoBot
+                  Little Ladle
                 </h1>
                 <p className="text-xs md:text-sm text-gray-500 dark:text-slate-300 font-medium transition-colors duration-300 hidden md:block">
                   WHO-Compliant Baby Nutrition Tracker
@@ -275,6 +338,26 @@ export function SimpleMealBuilder() {
                 <span className="hidden md:inline">Quick-Start</span>
                 <span className="md:hidden">Quick</span>
               </button>
+
+              {/* Recipes - Hidden on small screens */}
+              <button
+                onClick={() => openModal('recipes')}
+                className="hidden sm:inline-flex items-center px-3 md:px-4 py-2 md:py-2.5 bg-gradient-to-r from-yellow-500 to-orange-600 hover:from-yellow-600 hover:to-orange-700 text-white text-xs md:text-sm font-semibold rounded-xl shadow-md hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 dark:focus:ring-offset-slate-800 transform hover:scale-105 active:scale-95 min-h-[44px] touch-manipulation"
+              >
+                <span className="text-sm mr-1 md:mr-2">📖</span>
+                <span className="hidden md:inline">Recipes</span>
+                <span className="md:hidden">Save</span>
+              </button>
+
+              {/* Meal History - Hidden on small screens */}
+              <button
+                onClick={() => openModal('mealHistory')}
+                className="hidden sm:inline-flex items-center px-3 md:px-4 py-2 md:py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white text-xs md:text-sm font-semibold rounded-xl shadow-md hover:shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-offset-2 dark:focus:ring-offset-slate-800 transform hover:scale-105 active:scale-95 min-h-[44px] touch-manipulation"
+              >
+                <span className="text-sm mr-1 md:mr-2">📊</span>
+                <span className="hidden md:inline">History</span>
+                <span className="md:hidden">Log</span>
+              </button>
               
               {/* Auto-Chef - Primary action */}
               <button
@@ -298,6 +381,19 @@ export function SimpleMealBuilder() {
                 </svg>
                 <span className="hidden sm:inline">Add Food</span>
                 <span className="sm:hidden">Add</span>
+              </button>
+
+              {/* Save Meal - Compact on mobile */}
+              <button
+                onClick={saveMealToHistory}
+                disabled={!activeChildProfile || mealFoods.length === 0}
+                className="inline-flex items-center px-3 md:px-5 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 disabled:from-gray-300 disabled:to-gray-400 text-white text-xs md:text-sm font-semibold rounded-xl shadow-sm hover:shadow-md disabled:shadow-none transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 min-h-[44px] touch-manipulation transform hover:scale-105 active:scale-95 disabled:transform-none disabled:cursor-not-allowed"
+              >
+                <svg className="w-4 h-4 mr-1 md:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                <span className="hidden sm:inline">Save Meal</span>
+                <span className="sm:hidden">Save</span>
               </button>
             </div>
           </div>
@@ -420,13 +516,31 @@ export function SimpleMealBuilder() {
         childProfile={activeChildProfile}
       />
 
+      {/* Recipes Modal */}
+      <RecipesModal
+        isOpen={isModalOpen('recipes')}
+        onClose={() => closeModal()}
+        currentMeal={mealFoods}
+        onLoadRecipe={loadRecipe}
+      />
+
+      {/* Meal History Modal */}
+      <MealHistoryModal
+        isOpen={isModalOpen('mealHistory')}
+        onClose={() => closeModal()}
+        childProfile={activeChildProfile}
+        onLoadMeal={loadRecipe}
+      />
+
       {/* Mobile Navigation Drawer */}
       <MobileDrawer
         isOpen={isMobileDrawerOpen}
         onClose={closeMobileDrawer}
         onQuickStart={() => openModal('quickStart')}
+        onRecipes={() => openModal('recipes')}
         onAutoChef={() => openModal('autoChef')}
         onAddFood={() => openModal('addFood')}
+        onMealHistory={() => openModal('mealHistory')}
         childProfile={activeChildProfile}
         onCreateProfile={() => openModal('childProfile')}
         onEditProfile={() => openModal('childProfile')}
