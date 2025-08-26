@@ -1,3 +1,5 @@
+import { logger } from '../utils/logger';
+
 // Data service for server-side persistence
 class DataService {
   private baseUrl = import.meta.env.DEV ? 'http://localhost:3001' : window.location.origin;
@@ -9,7 +11,7 @@ class DataService {
       if (!response.ok) throw new Error('Failed to fetch child profiles');
       return await response.json();
     } catch (error) {
-      console.error('Error fetching child profiles:', error);
+      logger.error('Error fetching child profiles:', error);
       return [];
     }
   }
@@ -24,7 +26,7 @@ class DataService {
       const result = await response.json();
       return result.success;
     } catch (error) {
-      console.error('Error saving child profiles:', error);
+      logger.error('Error saving child profiles:', error);
       return false;
     }
   }
@@ -36,7 +38,7 @@ class DataService {
       if (!response.ok) throw new Error('Failed to fetch user preferences');
       return await response.json();
     } catch (error) {
-      console.error('Error fetching user preferences:', error);
+      logger.error('Error fetching user preferences:', error);
       return {};
     }
   }
@@ -51,7 +53,7 @@ class DataService {
       const result = await response.json();
       return result.success;
     } catch (error) {
-      console.error('Error saving user preferences:', error);
+      logger.error('Error saving user preferences:', error);
       return false;
     }
   }
@@ -63,7 +65,7 @@ class DataService {
       if (!response.ok) throw new Error('Failed to fetch meal history');
       return await response.json();
     } catch (error) {
-      console.error('Error fetching meal history:', error);
+      logger.error('Error fetching meal history:', error);
       return [];
     }
   }
@@ -78,7 +80,7 @@ class DataService {
       const result = await response.json();
       return result.success;
     } catch (error) {
-      console.error('Error saving meal history:', error);
+      logger.error('Error saving meal history:', error);
       return false;
     }
   }
@@ -90,7 +92,7 @@ class DataService {
       if (!response.ok) throw new Error('Failed to fetch recipes');
       return await response.json();
     } catch (error) {
-      console.error('Error fetching recipes:', error);
+      logger.error('Error fetching recipes:', error);
       return [];
     }
   }
@@ -105,7 +107,7 @@ class DataService {
       const result = await response.json();
       return result.success ? result.recipe : null;
     } catch (error) {
-      console.error('Error saving recipe:', error);
+      logger.error('Error saving recipe:', error);
       return null;
     }
   }
@@ -120,7 +122,7 @@ class DataService {
       const result = await response.json();
       return result.success;
     } catch (error) {
-      console.error('Error deleting recipe:', error);
+      logger.error('Error deleting recipe:', error);
       return false;
     }
   }
@@ -132,7 +134,7 @@ class DataService {
       if (!response.ok) throw new Error('Failed to fetch custom foods');
       return await response.json();
     } catch (error) {
-      console.error('Error fetching custom foods:', error);
+      logger.error('Error fetching custom foods:', error);
       return [];
     }
   }
@@ -147,7 +149,7 @@ class DataService {
       const result = await response.json();
       return result.success ? result.food : null;
     } catch (error) {
-      console.error('Error saving custom food:', error);
+      logger.error('Error saving custom food:', error);
       return null;
     }
   }
@@ -162,7 +164,7 @@ class DataService {
       const result = await response.json();
       return result.success;
     } catch (error) {
-      console.error('Error deleting custom food:', error);
+      logger.error('Error deleting custom food:', error);
       return false;
     }
   }
@@ -173,7 +175,7 @@ class DataService {
       const preferences = await this.getUserPreferences();
       return preferences['current-meal'] || [];
     } catch (error) {
-      console.error('Error getting current meal:', error);
+      logger.error('Error getting current meal:', error);
       return [];
     }
   }
@@ -182,7 +184,7 @@ class DataService {
     try {
       return await this.setPreference('current-meal', mealFoods);
     } catch (error) {
-      console.error('Error saving current meal:', error);
+      logger.error('Error saving current meal:', error);
       return false;
     }
   }
@@ -191,7 +193,7 @@ class DataService {
     try {
       return await this.setPreference('current-meal', []);
     } catch (error) {
-      console.error('Error clearing current meal:', error);
+      logger.error('Error clearing current meal:', error);
       return false;
     }
   }

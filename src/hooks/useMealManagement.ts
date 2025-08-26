@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import { MealFood, Food } from '../types/food';
 import { MEAL_CONFIG } from '../constants/config';
+import { logger } from '../utils/logger';
 import { dataService } from '../services/dataService';
 
 export const useMealManagement = () => {
@@ -8,7 +9,7 @@ export const useMealManagement = () => {
 
   const addFood = useCallback((food: Food, servingSize: number = MEAL_CONFIG.SERVING_OPTIONS[0]) => {
     if (servingSize < MEAL_CONFIG.MIN_CUSTOM_SERVING || servingSize > MEAL_CONFIG.MAX_CUSTOM_SERVING) {
-      console.warn('Invalid serving size:', servingSize);
+      logger.warn(`Invalid serving size: ${servingSize}`);
       return;
     }
 
@@ -28,7 +29,7 @@ export const useMealManagement = () => {
 
   const updateServingSize = useCallback((foodId: string, newServingSize: number) => {
     if (newServingSize < MEAL_CONFIG.MIN_CUSTOM_SERVING || newServingSize > MEAL_CONFIG.MAX_CUSTOM_SERVING) {
-      console.warn('Invalid serving size:', newServingSize);
+      logger.warn(`Invalid serving size: ${newServingSize}`);
       return;
     }
 

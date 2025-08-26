@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Food } from '../types/food';
 import { dataService } from '../services/dataService';
 import { loadAllFoods } from '../data/foodData';
+import { logger, debugLog } from '../utils/logger';
 
 interface SearchResult {
   fdcId: number;
@@ -159,9 +160,9 @@ export function AddFoodModal({ isOpen, onClose, onAddFood }: AddFoodModalProps) 
     // Save to custom foods database
     try {
       await dataService.saveCustomFood(processedFood);
-      console.log('Custom food saved and added to global database:', processedFood.name);
+      debugLog(`Custom food saved and added to global database: ${processedFood.name}`);
     } catch (error) {
-      console.error('Failed to save custom food:', error);
+      logger.error('Failed to save custom food:', error);
     }
 
     onAddFood(processedFood); // Parent will handle refreshing the food list

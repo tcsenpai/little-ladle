@@ -2,6 +2,7 @@ import { Food } from '../types/food';
 import { ChildProfile, AgeCalculation } from '../types/child';
 import { calculateAge } from './ageCalculation';
 import { calculateCompatibleNutrientIntake, debugNutrientConversion } from './nutritionCompatibility';
+import { debugLog } from './logger';
 
 export interface MealFood {
   id: string;
@@ -122,11 +123,12 @@ export async function calculateWHOCompliance(
   const intake = calculateNutrientIntake(mealFoods);
   const requirements = await getDailyRequirements(childProfile);
   
-  console.log('=== WHO COMPLIANCE DEBUG ===');
-  console.log('Child age:', ageCalc.displayAge, '(' + ageCalc.ageGroup + ')');
-  console.log('Meal foods:', mealFoods.map(mf => `${mf.food.shortName} (${mf.servingGrams}g)`));
-  console.log('Calculated intake:', intake);
-  console.log('WHO requirements:', requirements);
+  debugLog('WHO COMPLIANCE ANALYSIS', {
+    childAge: `${ageCalc.displayAge} (${ageCalc.ageGroup})`,
+    mealFoods: mealFoods.map(mf => `${mf.food.shortName} (${mf.servingGrams}g)`),
+    intake,
+    requirements
+  });
   
   if (!requirements) {
     return {

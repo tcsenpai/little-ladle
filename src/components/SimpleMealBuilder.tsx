@@ -29,6 +29,7 @@ import { useMobileResponsive } from '../hooks/useMobileResponsive';
 // Import constants
 import { MEAL_CONFIG, STORAGE_KEYS, ServingSize } from '../constants/config';
 import { dataService } from '../services/dataService';
+import { logger, debugLog } from '../utils/logger';
 
 export function SimpleMealBuilder() {
   // Use custom hooks for better organization
@@ -62,7 +63,7 @@ export function SimpleMealBuilder() {
           setActiveChildProfile(profiles[0]);
         }
       } catch (error) {
-        console.error('Failed to load child profiles:', error);
+        logger.error('Failed to load child profiles:', error);
       }
     };
     
@@ -95,7 +96,7 @@ export function SimpleMealBuilder() {
 
   const handleAddFood = useCallback((food: Food) => {
     const servingSize = getCurrentSize();
-    console.log('Adding food to meal:', food.name, 'with serving size:', servingSize, 'g');
+    debugLog(`Adding food to meal: ${food.name} with serving size: ${servingSize}g`);
     
     // Add satisfying feedback animation
     const button = document.querySelector(`[data-food-id="${food.fdcId}"] .add-food-btn`);
@@ -110,7 +111,7 @@ export function SimpleMealBuilder() {
   }, [addFood, getCurrentSize]);
 
   const handleRemoveFood = useCallback((foodId: string) => {
-    console.log('Removing food from meal:', foodId);
+    debugLog(`Removing food from meal: ${foodId}`);
     
     // Add removal animation before actually removing
     const foodElement = document.querySelector(`[data-meal-food-id="${foodId}"]`);
@@ -125,12 +126,12 @@ export function SimpleMealBuilder() {
   }, [removeFood]);
 
   const handleUpdateServing = useCallback((foodId: string, newServingGrams: number) => {
-    console.log('Updating serving for:', foodId, 'to:', newServingGrams, 'g');
+    debugLog(`Updating serving for: ${foodId} to: ${newServingGrams}g`);
     updateServingSize(foodId, newServingGrams);
   }, [updateServingSize]);
 
   const handleFoodInfo = useCallback((food: Food) => {
-    console.log('Showing info for:', food.name);
+    debugLog(`Showing info for: ${food.name}`);
     setSelectedFood(food);
   }, []);
 
@@ -142,14 +143,14 @@ export function SimpleMealBuilder() {
     try {
       const allFoods = await loadAllFoods();
       setAvailableFoods(allFoods);
-      console.log('Refreshed available foods, total count:', allFoods.length);
+      debugLog(`Refreshed available foods, total count: ${allFoods.length}`);
     } catch (error) {
-      console.error('Failed to refresh available foods:', error);
+      logger.error('Failed to refresh available foods:', error);
     }
   }, []);
 
   const handleAddNewFood = useCallback(async (food: Food) => {
-    console.log('Added new food to database:', food.name);
+    debugLog(`Added new food to database: ${food.name}`);
     await refreshAvailableFoods(); // Refresh from server to get the complete merged list
     closeModal();
   }, [closeModal, refreshAvailableFoods]);
@@ -175,9 +176,9 @@ export function SimpleMealBuilder() {
       
       setActiveChildProfile(profile);
       await dataService.setPreference('active-child-id', profile.id);
-      console.log('Saved child profile:', profile.name);
+      debugLog(`Saved child profile: ${profile.name}`);
     } catch (error) {
-      console.error('Failed to save child profile:', error);
+      logger.error('Failed to save child profile:', error);
     }
   }, []);
   
@@ -185,9 +186,9 @@ export function SimpleMealBuilder() {
     try {
       setActiveChildProfile(profile);
       await dataService.setPreference('active-child-id', profile.id);
-      console.log('Selected child profile:', profile.name);
+      debugLog(`Selected child profile: ${profile.name}`);
     } catch (error) {
-      console.error('Failed to select child profile:', error);
+      logger.error('Failed to select child profile:', error);
     }
   }, []);
 
@@ -200,7 +201,7 @@ export function SimpleMealBuilder() {
   }, []);
 
   const handleApplyTemplate = useCallback((templateFoods: MealFood[]) => {
-    console.log('Applying meal template with', templateFoods.length, 'foods');
+    debugLog(`Applying meal template with ${templateFoods.length} foods`);
     
     // Clear current meal first
     clearMeal();
@@ -214,7 +215,7 @@ export function SimpleMealBuilder() {
   }, [clearMeal, addFood]);
 
   const handleApplySuggestion = useCallback((suggestion: AutoChefSuggestion) => {
-    console.log('Applying auto-chef suggestion:', suggestion.name);
+    debugLog(`Applying auto-chef suggestion: ${suggestion.name}`);
     
     // Clear current meal first (always, even if empty)
     clearMeal();
@@ -282,14 +283,14 @@ export function SimpleMealBuilder() {
       const success = await dataService.saveMealHistory(history);
       
       if (success) {
-        console.log('Meal saved to history:', mealHistoryEntry);
+        debugLog('Meal saved to history', mealHistoryEntry);
         // Optionally clear the meal after saving
         clearMeal();
       } else {
-        console.error('Failed to save meal to history');
+        logger.error('Failed to save meal to history');
       }
     } catch (error) {
-      console.error('Error saving meal to history:', error);
+      logger.error('Error saving meal to history:', error);
     }
   }, [activeChildProfile, mealFoods, clearMeal]);
 
@@ -325,14 +326,14 @@ export function SimpleMealBuilder() {
       const success = await dataService.saveMealHistory(history);
       
       if (success) {
-        console.log('Meal saved to history:', mealHistoryEntry);
+        debugLog('Meal saved to history', mealHistoryEntry);
         return true;
       } else {
-        console.error('Failed to save meal to history');
+        logger.error('Failed to save meal to history');
         return false;
       }
     } catch (error) {
-      console.error('Error saving meal to history:', error);
+      logger.error('Error saving meal to history:', error);
       return false;
     }
   }, [activeChildProfile, mealFoods]);
@@ -361,7 +362,7 @@ export function SimpleMealBuilder() {
 
   const handleSaveMealOptions = useCallback(() => {
     if (mealFoods.length === 0) {
-      console.warn('No foods in meal to save');
+      logger.warn('No foods in meal to save');
       return;
     }
     openModal('saveMealOptions');
