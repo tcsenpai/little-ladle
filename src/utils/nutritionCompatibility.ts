@@ -103,15 +103,15 @@ export function validateNutrientValue(nutrientKey: string, value: number): boole
 /**
  * Enhanced nutrient intake calculation with compatibility layer
  */
-export function calculateCompatibleNutrientIntake(mealFoods: any[]): any {
-  const intake: any = {};
+export function calculateCompatibleNutrientIntake(mealFoods: import('../types/food').MealFood[]): import('./whoCompliance').NutrientIntake {
+  const intake: import('./whoCompliance').NutrientIntake = {};
   
   for (const mealFood of mealFoods) {
     const { food, servingGrams } = mealFood;
     const multiplier = servingGrams / 100; // USDA data is per 100g
     
     // Process each nutrient with compatibility conversion
-    Object.entries(food.nutrients).forEach(([nutrientKey, nutrient]: [string, any]) => {
+    Object.entries(food.nutrients).forEach(([nutrientKey, nutrient]: [string, import('../types/food').Nutrient]) => {
       if (!intake[nutrientKey]) {
         intake[nutrientKey] = {
           amount: 0,

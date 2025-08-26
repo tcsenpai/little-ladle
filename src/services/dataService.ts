@@ -1,11 +1,15 @@
 import { logger } from '../utils/logger';
+import type { ChildProfile } from '../types/child';
+import type { UserPreferences, Recipe, MealHistoryEntry, CustomFood } from '../types/user';
+import type { MealFood } from '../types/food';
+import type { ApiResponse } from '../types/server';
 
 // Data service for server-side persistence
 class DataService {
   private baseUrl = import.meta.env.DEV ? 'http://localhost:3001' : window.location.origin;
 
   // Child Profiles
-  async getChildProfiles(): Promise<any[]> {
+  async getChildProfiles(): Promise<ChildProfile[]> {
     try {
       const response = await fetch(`${this.baseUrl}/api/child-profiles`);
       if (!response.ok) throw new Error('Failed to fetch child profiles');
@@ -16,14 +20,14 @@ class DataService {
     }
   }
 
-  async saveChildProfiles(profiles: any[]): Promise<boolean> {
+  async saveChildProfiles(profiles: ChildProfile[]): Promise<boolean> {
     try {
       const response = await fetch(`${this.baseUrl}/api/child-profiles`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(profiles),
       });
-      const result = await response.json();
+      const result: ApiResponse = await response.json();
       return result.success;
     } catch (error) {
       logger.error('Error saving child profiles:', error);
@@ -32,25 +36,25 @@ class DataService {
   }
 
   // User Preferences
-  async getUserPreferences(): Promise<any> {
+  async getUserPreferences(): Promise<UserPreferences> {
     try {
       const response = await fetch(`${this.baseUrl}/api/user-preferences`);
       if (!response.ok) throw new Error('Failed to fetch user preferences');
       return await response.json();
     } catch (error) {
       logger.error('Error fetching user preferences:', error);
-      return {};
+      return {} as UserPreferences;
     }
   }
 
-  async saveUserPreferences(preferences: any): Promise<boolean> {
+  async saveUserPreferences(preferences: UserPreferences): Promise<boolean> {
     try {
       const response = await fetch(`${this.baseUrl}/api/user-preferences`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(preferences),
       });
-      const result = await response.json();
+      const result: ApiResponse = await response.json();
       return result.success;
     } catch (error) {
       logger.error('Error saving user preferences:', error);
@@ -59,7 +63,7 @@ class DataService {
   }
 
   // Meal History
-  async getMealHistory(): Promise<any[]> {
+  async getMealHistory(): Promise<MealHistoryEntry[]> {
     try {
       const response = await fetch(`${this.baseUrl}/api/meal-history`);
       if (!response.ok) throw new Error('Failed to fetch meal history');
@@ -70,14 +74,14 @@ class DataService {
     }
   }
 
-  async saveMealHistory(history: any[]): Promise<boolean> {
+  async saveMealHistory(history: MealHistoryEntry[]): Promise<boolean> {
     try {
       const response = await fetch(`${this.baseUrl}/api/meal-history`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(history),
       });
-      const result = await response.json();
+      const result: ApiResponse = await response.json();
       return result.success;
     } catch (error) {
       logger.error('Error saving meal history:', error);
@@ -86,7 +90,7 @@ class DataService {
   }
 
   // Recipes API
-  async getRecipes(): Promise<any[]> {
+  async getRecipes(): Promise<Recipe[]> {
     try {
       const response = await fetch(`${this.baseUrl}/api/recipes`);
       if (!response.ok) throw new Error('Failed to fetch recipes');
@@ -97,15 +101,15 @@ class DataService {
     }
   }
 
-  async saveRecipe(recipe: any): Promise<any | null> {
+  async saveRecipe(recipe: Omit<Recipe, 'id' | 'createdAt' | 'updatedAt'>): Promise<Recipe | null> {
     try {
       const response = await fetch(`${this.baseUrl}/api/recipes`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(recipe),
       });
-      const result = await response.json();
-      return result.success ? result.recipe : null;
+      const result: ApiResponse<{recipe: Recipe}> = await response.json();
+      return result.success ? result.data!.recipe : null;
     } catch (error) {
       logger.error('Error saving recipe:', error);
       return null;
@@ -119,7 +123,7 @@ class DataService {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id }),
       });
-      const result = await response.json();
+      const result: ApiResponse = await response.json();
       return result.success;
     } catch (error) {
       logger.error('Error deleting recipe:', error);
@@ -128,7 +132,7 @@ class DataService {
   }
 
   // Custom Foods API
-  async getCustomFoods(): Promise<any[]> {
+  async getCustomFoods(): Promise<CustomFood[]> {
     try {
       const response = await fetch(`${this.baseUrl}/api/custom-foods`);
       if (!response.ok) throw new Error('Failed to fetch custom foods');
@@ -139,15 +143,15 @@ class DataService {
     }
   }
 
-  async saveCustomFood(food: any): Promise<any | null> {
+  async saveCustomFood(food: Omit<CustomFood, 'id' | 'createdAt' | 'updatedAt' | 'isCustom'>): Promise<CustomFood | null> {
     try {
       const response = await fetch(`${this.baseUrl}/api/custom-foods`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(food),
       });
-      const result = await response.json();
-      return result.success ? result.food : null;
+      const result: ApiResponse<{food: CustomFood}> = await response.json();
+      return result.success ? result.data!.food : null;
     } catch (error) {
       logger.error('Error saving custom food:', error);
       return null;
@@ -161,7 +165,7 @@ class DataService {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ fdcId }),
       });
-      const result = await response.json();
+      const result: ApiResponse = await response.json();
       return result.success;
     } catch (error) {
       logger.error('Error deleting custom food:', error);
@@ -170,7 +174,7 @@ class DataService {
   }
 
   // Current meal state (auto-save)
-  async getCurrentMeal(): Promise<any[]> {
+  async getCurrentMeal(): Promise<MealFood[]> {
     try {
       const preferences = await this.getUserPreferences();
       return preferences['current-meal'] || [];
@@ -180,7 +184,7 @@ class DataService {
     }
   }
 
-  async saveCurrentMeal(mealFoods: any[]): Promise<boolean> {
+  async saveCurrentMeal(mealFoods: MealFood[]): Promise<boolean> {
     try {
       return await this.setPreference('current-meal', mealFoods);
     } catch (error) {
@@ -199,12 +203,12 @@ class DataService {
   }
 
   // Generic preference getters/setters with server fallback
-  async getPreference(key: string, defaultValue: any = null): Promise<any> {
+  async getPreference<T = unknown>(key: string, defaultValue: T | null = null): Promise<T | null> {
     const preferences = await this.getUserPreferences();
     return preferences[key] ?? defaultValue;
   }
 
-  async setPreference(key: string, value: any): Promise<boolean> {
+  async setPreference<T = unknown>(key: string, value: T): Promise<boolean> {
     const preferences = await this.getUserPreferences();
     preferences[key] = value;
     return await this.saveUserPreferences(preferences);

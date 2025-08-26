@@ -43,8 +43,13 @@ function categorizeFood(description: string): Food['category'] {
   return 'other';
 }
 
-function processNutrients(foodNutrients: any[]) {
-  const nutrients: any = {};
+interface FoodNutrientData {
+  nutrient: { id: number; name: string; unitName?: string };
+  amount: number;
+}
+
+function processNutrients(foodNutrients: FoodNutrientData[]): import('../types/food').Nutrients {
+  const nutrients: Record<string, import('../types/food').Nutrient> = {};
   for (const fn of foodNutrients || []) {
     if (fn.nutrient && nutrientMap[fn.nutrient.id as keyof typeof nutrientMap] && fn.amount != null) {
       const mapping = nutrientMap[fn.nutrient.id as keyof typeof nutrientMap];
@@ -62,7 +67,14 @@ export function AddFoodModal({ isOpen, onClose, onAddFood }: AddFoodModalProps) 
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
   const [selectedFood, setSelectedFood] = useState<SearchResult | null>(null);
-  const [foodDetails, setFoodDetails] = useState<any>(null);
+  interface FoodDetailsResponse {
+    fdcId: number;
+    description: string;
+    foodNutrients: FoodNutrientData[];
+    foodCategory?: { description?: string };
+  }
+
+  const [foodDetails, setFoodDetails] = useState<FoodDetailsResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingDetails, setIsLoadingDetails] = useState(false);
   const [error, setError] = useState<string | null>(null);

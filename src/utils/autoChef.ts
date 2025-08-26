@@ -119,7 +119,7 @@ async function generateMealSuggestions(
   availableFoods: Food[],
   childProfile: ChildProfile,
   feedingMode: FeedingMode,
-  gaps: any
+  gaps: import('../types/server').NutritionalGaps
 ): Promise<AutoChefSuggestion[]> {
   
   const suggestions: AutoChefSuggestion[] = [];
@@ -233,7 +233,7 @@ async function createGapFillingMeals(
   availableFoods: Food[],
   childProfile: ChildProfile,
   feedingMode: FeedingMode,
-  gaps: any
+  gaps: import('../types/server').NutritionalGaps
 ): Promise<AutoChefSuggestion[]> {
   
   const suggestions: AutoChefSuggestion[] = [];
@@ -392,7 +392,7 @@ async function createIntroductionMeal(
 function generateQuickFixes(
   currentMealFoods: MealFood[],
   availableFoods: Food[],
-  gaps: any,
+  gaps: import('../types/server').NutritionalGaps,
   feedingMode: FeedingMode
 ): Array<{ food: Food; servingGrams: number; expectedImprovement: number; reason: string }> {
   

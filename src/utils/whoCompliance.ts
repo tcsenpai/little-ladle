@@ -86,7 +86,7 @@ export async function getDailyRequirements(childProfile: ChildProfile) {
 /**
  * Calculate percent of daily value for nutrients
  */
-export function calculatePercentDaily(intake: NutrientIntake, requirements: any): NutrientIntake {
+export function calculatePercentDaily(intake: NutrientIntake, requirements: import('../types/child').NutritionalRequirements): NutrientIntake {
   const result = { ...intake };
   
   // Nutrient mapping between our food data and WHO requirements

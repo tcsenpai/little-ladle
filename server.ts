@@ -1,6 +1,7 @@
 import { serve } from "bun";
 import { existsSync, mkdirSync } from "fs";
 import * as path from "path";
+import type { Recipe, CustomFood } from "./src/types/user";
 
 // Environment detection
 const isDevelopment = process.env.NODE_ENV === "development" || !existsSync("./dist");
@@ -21,7 +22,7 @@ const RECIPES_FILE = path.join(DATA_DIR, "favorite_meal_recipes.json");
 const CUSTOM_FOODS_FILE = path.join(DATA_DIR, "baby_data_custom-foods.json");
 
 // Helper functions for file operations
-async function readJsonFile(filePath: string, defaultValue: any = null) {
+async function readJsonFile<T = unknown>(filePath: string, defaultValue: T | null = null): Promise<T | null> {
   try {
     if (!existsSync(filePath)) {
       return defaultValue;
@@ -34,7 +35,7 @@ async function readJsonFile(filePath: string, defaultValue: any = null) {
   }
 }
 
-async function writeJsonFile(filePath: string, data: any) {
+async function writeJsonFile(filePath: string, data: unknown): Promise<boolean> {
   try {
     await Bun.write(filePath, JSON.stringify(data, null, 2));
     return true;
@@ -160,7 +161,7 @@ const server = serve({
         if (method === "DELETE") {
           const { id } = await request.json();
           const recipes = await readJsonFile(RECIPES_FILE, []);
-          const filteredRecipes = recipes.filter((r: any) => r.id !== id);
+          const filteredRecipes = recipes.filter((r: Recipe) => r.id !== id);
           const success = await writeJsonFile(RECIPES_FILE, filteredRecipes);
           return new Response(JSON.stringify({ success }), {
             headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -183,7 +184,7 @@ const server = serve({
           const customFoods = await readJsonFile(CUSTOM_FOODS_FILE, []);
           
           // Check if food already exists (by fdcId or name)
-          const existingIndex = customFoods.findIndex((f: any) => 
+          const existingIndex = customFoods.findIndex((f: CustomFood) => 
             f.fdcId === customFood.fdcId || f.name === customFood.name
           );
           
@@ -206,7 +207,7 @@ const server = serve({
         if (method === "DELETE") {
           const { fdcId } = await request.json();
           const customFoods = await readJsonFile(CUSTOM_FOODS_FILE, []);
-          const filteredFoods = customFoods.filter((f: any) => f.fdcId !== fdcId);
+          const filteredFoods = customFoods.filter((f: CustomFood) => f.fdcId !== fdcId);
           const success = await writeJsonFile(CUSTOM_FOODS_FILE, filteredFoods);
           return new Response(JSON.stringify({ success }), {
             headers: { ...corsHeaders, "Content-Type": "application/json" },

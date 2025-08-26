@@ -97,7 +97,7 @@ describe('DataService', () => {
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: async () => ({ success: true, food: mockFood }),
+        json: async () => ({ success: true, data: { food: mockFood } }),
       });
 
       const result = await dataService.saveCustomFood(mockFood);

@@ -8,14 +8,14 @@ type LogLevel = 'log' | 'info' | 'warn' | 'error';
 const isDevelopment = import.meta.env.DEV;
 
 interface Logger {
-  log: (message: string, ...args: any[]) => void;
-  info: (message: string, ...args: any[]) => void;
-  warn: (message: string, ...args: any[]) => void;
-  error: (message: string, ...args: any[]) => void;
+  log: (message: string, ...args: unknown[]) => void;
+  info: (message: string, ...args: unknown[]) => void;
+  warn: (message: string, ...args: unknown[]) => void;
+  error: (message: string, ...args: unknown[]) => void;
 }
 
 const createLogger = (): Logger => {
-  const log = (level: LogLevel, message: string, ...args: any[]) => {
+  const log = (level: LogLevel, message: string, ...args: unknown[]) => {
     // Always log errors for debugging
     if (level === 'error') {
       console.error(`[Little Ladle] ${message}`, ...args);
@@ -29,10 +29,10 @@ const createLogger = (): Logger => {
   };
 
   return {
-    log: (message: string, ...args: any[]) => log('log', message, ...args),
-    info: (message: string, ...args: any[]) => log('info', message, ...args),
-    warn: (message: string, ...args: any[]) => log('warn', message, ...args),
-    error: (message: string, ...args: any[]) => log('error', message, ...args)
+    log: (message: string, ...args: unknown[]) => log('log', message, ...args),
+    info: (message: string, ...args: unknown[]) => log('info', message, ...args),
+    warn: (message: string, ...args: unknown[]) => log('warn', message, ...args),
+    error: (message: string, ...args: unknown[]) => log('error', message, ...args)
   };
 };
 
@@ -47,7 +47,7 @@ export const logPerformance = (operation: string, startTime: number) => {
 };
 
 // Helper for conditional debugging
-export const debugLog = (message: string, data?: any) => {
+export const debugLog = (message: string, data?: unknown) => {
   if (isDevelopment) {
     if (data !== undefined) {
       logger.log(`DEBUG: ${message}`, data);
