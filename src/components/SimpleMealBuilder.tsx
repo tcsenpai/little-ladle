@@ -9,6 +9,7 @@ import { WHOCompliancePanel } from './WHOCompliancePanel';
 import { AutoChefModal } from './AutoChefModal';
 import { RecipesModal } from './RecipesModal';
 import { MealHistoryModal } from './MealHistoryModal';
+import { SaveMealOptionsModal } from './SaveMealOptionsModal';
 import { foods, getFoodsByCategory, loadAllFoods } from '../data/foodData';
 import { Food } from '../types/food';
 import { ChildProfile } from '../types/child';
@@ -292,6 +293,80 @@ export function SimpleMealBuilder() {
     }
   }, [activeChildProfile, mealFoods, clearMeal]);
 
+  // Save to history without clearing meal
+  const saveMealToHistoryOnly = useCallback(async () => {
+    if (!activeChildProfile || mealFoods.length === 0) {
+      return false;
+    }
+
+    try {
+      // Calculate total calories
+      const totalCalories = mealFoods.reduce((total, mealFood) => {
+        const calories = mealFood.food.nutrients?.calories?.amount || 0;
+        return total + (calories * mealFood.servingGrams / 100);
+      }, 0);
+
+      // Create meal history entry
+      const mealHistoryEntry = {
+        id: `meal-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        childId: activeChildProfile.id,
+        childName: activeChildProfile.name,
+        date: new Date().toISOString(),
+        foods: mealFoods,
+        totalCalories,
+        createdAt: new Date().toISOString(),
+      };
+
+      // Get existing history and add new entry
+      const history = await dataService.getMealHistory();
+      history.push(mealHistoryEntry);
+      
+      // Save updated history
+      const success = await dataService.saveMealHistory(history);
+      
+      if (success) {
+        console.log('Meal saved to history:', mealHistoryEntry);
+        return true;
+      } else {
+        console.error('Failed to save meal to history');
+        return false;
+      }
+    } catch (error) {
+      console.error('Error saving meal to history:', error);
+      return false;
+    }
+  }, [activeChildProfile, mealFoods]);
+
+  // Handle save meal options
+  const handleSaveMealHistory = useCallback(async () => {
+    await saveMealToHistory();
+    closeModal();
+  }, [saveMealToHistory, closeModal]);
+
+  const handleSaveMealRecipe = useCallback(() => {
+    // Open the recipes modal for saving
+    closeModal();
+    openModal('recipes');
+  }, [closeModal, openModal]);
+
+  const handleSaveMealBoth = useCallback(async () => {
+    // Save to history first (without clearing meal)
+    const success = await saveMealToHistoryOnly();
+    if (success) {
+      // Then open recipes modal with the meal still intact
+      closeModal();
+      openModal('recipes');
+    }
+  }, [saveMealToHistoryOnly, closeModal, openModal]);
+
+  const handleSaveMealOptions = useCallback(() => {
+    if (mealFoods.length === 0) {
+      console.warn('No foods in meal to save');
+      return;
+    }
+    openModal('saveMealOptions');
+  }, [mealFoods.length, openModal]);
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-emerald-50 via-blue-50 to-orange-50 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900 transition-colors duration-300">
       {/* Mobile-First Responsive Header */}
@@ -385,7 +460,7 @@ export function SimpleMealBuilder() {
 
               {/* Save Meal - Compact on mobile */}
               <button
-                onClick={saveMealToHistory}
+                onClick={handleSaveMealOptions}
                 disabled={!activeChildProfile || mealFoods.length === 0}
                 className="inline-flex items-center px-3 md:px-5 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 disabled:from-gray-300 disabled:to-gray-400 text-white text-xs md:text-sm font-semibold rounded-xl shadow-sm hover:shadow-md disabled:shadow-none transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-slate-800 min-h-[44px] touch-manipulation transform hover:scale-105 active:scale-95 disabled:transform-none disabled:cursor-not-allowed"
               >
@@ -530,6 +605,17 @@ export function SimpleMealBuilder() {
         onClose={() => closeModal()}
         childProfile={activeChildProfile}
         onLoadMeal={loadRecipe}
+      />
+
+      {/* Save Meal Options Modal */}
+      <SaveMealOptionsModal
+        isOpen={isModalOpen('saveMealOptions')}
+        onClose={() => closeModal()}
+        onSaveHistory={handleSaveMealHistory}
+        onSaveRecipe={handleSaveMealRecipe}
+        onSaveBoth={handleSaveMealBoth}
+        mealFoods={mealFoods}
+        activeChildProfile={activeChildProfile}
       />
 
       {/* Mobile Navigation Drawer */}
