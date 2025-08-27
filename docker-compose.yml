@@ -10,17 +10,13 @@ services:
     ports:
       - "3080:3000"
     volumes:
-      # Persistent data storage (for future server-side data)
-      - pappobot-data:/app/data
-      # Environment configuration
-      - ./docker/config:/app/config:ro
+      # Mount entire project directory - reuse everything from non-Docker version
+      - .:/app
     environment:
       # Environment variables can be overridden here
       - NODE_ENV=production
       # Pass the USDA API key to the container
       - VITE_USDA_API_KEY=${VITE_USDA_API_KEY}
-      # Set the data directory for persistent storage
-      - DATA_DIR=/app/data
     networks:
       - pappobot-network
     healthcheck:
@@ -43,7 +39,7 @@ services:
     ports:
       - "3081:80"
     volumes:
-      - pappobot-data:/srv/data
+      - .:/srv/data
       - pappobot-filebrowser-config:/config
     environment:
       - FB_BASEURL=/files
@@ -56,14 +52,6 @@ services:
       - "app.description=File browser for PappoBot data management"
 
 volumes:
-  # Persistent application data
-  pappobot-data:
-    driver: local
-  
-  # Application logs
-  pappobot-logs:
-    driver: local
-  
   # File browser configuration
   pappobot-filebrowser-config:
     driver: local

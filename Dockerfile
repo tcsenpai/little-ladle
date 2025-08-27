@@ -4,34 +4,14 @@ FROM oven/bun:1-alpine
 # Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package.json ./
+# Install bun dependencies globally that might be needed
+RUN apk add --no-cache curl
 
-# Install dependencies with Bun
-RUN bun install --frozen-lockfile
-
-# Copy source code
-COPY . .
-
-# Accept build arguments for environment variables
-ARG VITE_USDA_API_KEY
-
-# Set environment variables for the build
-ENV VITE_USDA_API_KEY=$VITE_USDA_API_KEY
-
-# Build the application
-RUN bun run build
-
-# Create directory for application data and set permissions in one step
-RUN addgroup -g 1001 -S appuser && \
-    adduser -S appuser -u 1001 -G appuser && \
-    mkdir -p /app/data && \
-    chown -R appuser:appuser /app
-
-USER appuser
+# Note: The entire project will be mounted at runtime via docker-compose
+# Running as root to avoid permission issues with mounted volumes
 
 # Expose port
 EXPOSE 3000
 
-# Run our custom server
-CMD ["bun", "run", "server.ts"]
+# When container starts, install deps if needed, build if needed, and run the server
+CMD ["sh", "-c", "if [ ! -d node_modules ]; then bun install; fi && if [ ! -d dist ]; then VITE_USDA_API_KEY=${VITE_USDA_API_KEY} bun run build; fi && bun run server.ts"]

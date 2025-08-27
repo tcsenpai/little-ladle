@@ -76,6 +76,31 @@ const server = serve({
       return new Response(null, { headers: corsHeaders });
     }
 
+    // Serve static data files (WHO guidelines, etc.)
+    if (url.pathname.startsWith("/data/")) {
+      const dataFilePath = path.join(STATIC_DIR, url.pathname);
+      try {
+        const file = Bun.file(dataFilePath);
+        const exists = await file.exists();
+        
+        if (exists) {
+          return new Response(file, {
+            headers: {
+              "Content-Type": "application/json",
+              ...corsHeaders,
+            },
+          });
+        }
+      } catch (error) {
+        console.error(`Error serving data file ${url.pathname}:`, error);
+      }
+      
+      return new Response("Data file not found", { 
+        status: 404,
+        headers: corsHeaders 
+      });
+    }
+
     // API Routes
     if (url.pathname.startsWith("/api")) {
       
