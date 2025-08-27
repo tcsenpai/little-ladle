@@ -183,7 +183,7 @@ const server = serve({
           recipe.createdAt = new Date().toISOString();
           recipes.push(recipe);
           const success = await writeJsonFile(RECIPES_FILE, recipes);
-          return new Response(JSON.stringify({ success, recipe }), {
+          return new Response(JSON.stringify({ success, data: { recipe } }), {
             headers: { ...corsHeaders, "Content-Type": "application/json" },
             status: success ? 200 : 500,
           });
@@ -229,7 +229,7 @@ const server = serve({
           }
           
           const success = await writeJsonFile(CUSTOM_FOODS_FILE, customFoods);
-          return new Response(JSON.stringify({ success, food: customFood }), {
+          return new Response(JSON.stringify({ success, data: { food: customFood } }), {
             headers: { ...corsHeaders, "Content-Type": "application/json" },
             status: success ? 200 : 500,
           });
