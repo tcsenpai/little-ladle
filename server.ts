@@ -70,6 +70,7 @@ function getCorsHeaders(origin: string | null) {
 // Server
 const server = serve({
   port: PORT,
+  hostname: "0.0.0.0", // Explicitly bind to all interfaces
   async fetch(request) {
     const url = new URL(request.url);
     const method = request.method;

@@ -9,7 +9,7 @@ services:
         - VITE_USDA_API_KEY=${VITE_USDA_API_KEY}
     container_name: pappobot-app
     restart: unless-stopped
-    user: "${USER_ID:-1000}:${GROUP_ID:-1000}"
+    # user: "${USER_ID:-1000}:${GROUP_ID:-1000}"  # Temporarily disabled to debug
     ports:
       - "3080:3000"
     volumes:
@@ -22,12 +22,12 @@ services:
       - VITE_USDA_API_KEY=${VITE_USDA_API_KEY}
     networks:
       - pappobot-network
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    # healthcheck:
+    #   test: ["CMD", "curl", "-f", "http://localhost:3000/"]
+    #   interval: 30s
+    #   timeout: 10s
+    #   retries: 3
+    #   start_period: 40s
     labels:
       - "traefik.enable=false"
       - "app.name=pappobot"
