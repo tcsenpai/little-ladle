@@ -33,36 +33,14 @@ fi
 echo -e "${GREEN}✅ Environment file found${NC}"
 echo ""
 
-# Step 3: Install dependencies if needed
-if [ ! -d "node_modules" ]; then
-    echo -e "${GREEN}📦 Installing dependencies...${NC}"
-    bun install
-    echo -e "   ✅ Dependencies installed"
-else
-    echo -e "${GREEN}✅ Dependencies already installed${NC}"
-fi
+# Step 3: Docker will handle dependencies and build
+echo -e "${GREEN}📦 Docker will handle dependencies and build${NC}"
+echo -e "${YELLOW}   Using Bun inside container for consistent environment${NC}"
 echo ""
 
-# Step 4: Build the project if needed
-if [ ! -d "dist" ]; then
-    echo -e "${GREEN}🔨 Building the application with Bun...${NC}"
-    # Use bun's bundler directly instead of vite
-    source .env && VITE_USDA_API_KEY=$VITE_USDA_API_KEY bun run build
-    if [ $? -ne 0 ]; then
-        echo -e "${RED}❌ Build failed. Trying alternative build method...${NC}"
-        # Alternative: just run the server without pre-building
-        echo -e "${YELLOW}Will build inside Docker container instead${NC}"
-    else
-        echo -e "   ✅ Application built"
-    fi
-else
-    echo -e "${GREEN}✅ Application already built${NC}"
-    echo -e "${YELLOW}   (Delete 'dist' folder and re-run to rebuild)${NC}"
-fi
-echo ""
-
-# Step 5: Start Docker containers
+# Step 4: Start Docker containers
 echo -e "${GREEN}🐳 Starting Docker containers...${NC}"
+echo -e "${YELLOW}   Docker will install deps and build with Bun v1.2.21${NC}"
 echo ""
 
 # Export user ID for permissions (avoid UID conflict)
