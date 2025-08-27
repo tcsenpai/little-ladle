@@ -3,6 +3,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - VITE_USDA_API_KEY=${VITE_USDA_API_KEY}
     container_name: pappobot-app
     restart: unless-stopped
     ports:
@@ -15,6 +17,10 @@ services:
     environment:
       # Environment variables can be overridden here
       - NODE_ENV=production
+      # Pass the USDA API key to the container
+      - VITE_USDA_API_KEY=${VITE_USDA_API_KEY}
+      # Set the data directory for persistent storage
+      - DATA_DIR=/app/data
     networks:
       - pappobot-network
     healthcheck:
@@ -53,10 +59,6 @@ volumes:
   # Persistent application data
   pappobot-data:
     driver: local
-    driver_opts:
-      type: none
-      o: bind
-      device: ./docker/data
   
   # Application logs
   pappobot-logs:

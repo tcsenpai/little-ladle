@@ -13,6 +13,12 @@ RUN bun install --frozen-lockfile
 # Copy source code
 COPY . .
 
+# Accept build arguments for environment variables
+ARG VITE_USDA_API_KEY
+
+# Set environment variables for the build
+ENV VITE_USDA_API_KEY=$VITE_USDA_API_KEY
+
 # Build the application
 RUN bun run build
 
