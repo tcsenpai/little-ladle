@@ -10,8 +10,13 @@ const DATA_DIR = isDevelopment ? "./data-local" : (process.env.DATA_DIR || "./da
 const STATIC_DIR = "./dist";
 
 // Ensure data directory exists
-if (!existsSync(DATA_DIR)) {
-  mkdirSync(DATA_DIR, { recursive: true });
+try {
+  if (!existsSync(DATA_DIR)) {
+    mkdirSync(DATA_DIR, { recursive: true });
+  }
+} catch (error) {
+  console.warn(`Note: Could not create ${DATA_DIR} directory. It may already exist or you may need to create it manually.`);
+  // Continue anyway - the directory might already exist
 }
 
 // Data file paths

@@ -9,6 +9,7 @@ services:
         - VITE_USDA_API_KEY=${VITE_USDA_API_KEY}
     container_name: pappobot-app
     restart: unless-stopped
+    user: "${UID:-1000}:${GID:-1000}"
     ports:
       - "3080:3000"
     volumes:
