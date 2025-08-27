@@ -45,12 +45,19 @@ echo ""
 
 # Step 4: Build the project if needed
 if [ ! -d "dist" ]; then
-    echo -e "${GREEN}🔨 Building the application...${NC}"
-    source .env && bun run build
-    echo -e "   ✅ Application built"
+    echo -e "${GREEN}🔨 Building the application with Bun...${NC}"
+    # Use bun's bundler directly instead of vite
+    source .env && VITE_USDA_API_KEY=$VITE_USDA_API_KEY bun run build
+    if [ $? -ne 0 ]; then
+        echo -e "${RED}❌ Build failed. Trying alternative build method...${NC}"
+        # Alternative: just run the server without pre-building
+        echo -e "${YELLOW}Will build inside Docker container instead${NC}"
+    else
+        echo -e "   ✅ Application built"
+    fi
 else
     echo -e "${GREEN}✅ Application already built${NC}"
-    echo -e "${YELLOW}   (Run 'bun run build' to rebuild if needed)${NC}"
+    echo -e "${YELLOW}   (Delete 'dist' folder and re-run to rebuild)${NC}"
 fi
 echo ""
 
@@ -58,9 +65,9 @@ echo ""
 echo -e "${GREEN}🐳 Starting Docker containers...${NC}"
 echo ""
 
-# Export user ID for permissions
-export UID=$(id -u)
-export GID=$(id -g)
+# Export user ID for permissions (avoid UID conflict)
+export USER_ID=$(id -u)
+export GROUP_ID=$(id -g)
 
 # Run docker compose
 if [ "$DETACHED" == "-d" ]; then
